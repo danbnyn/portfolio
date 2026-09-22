@@ -1,0 +1,12 @@
+{
+  "name": "dan-benayoun-scientific-notes",
+  "private": true,
+  "description": "Optional authoring dependency; the published site is plain HTML and SVG.",
+  "scripts": {
+    "build": "python tools/build_articles.py",
+    "check": "python tools/check.py"
+  },
+  "devDependencies": {
+    "mathjax-full": "3.2.1"
+  }
+}

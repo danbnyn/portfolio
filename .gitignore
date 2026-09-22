@@ -1,0 +1,11 @@
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+artifacts/
+*.log
+*.aux
+*.out
+*.synctex.gz
