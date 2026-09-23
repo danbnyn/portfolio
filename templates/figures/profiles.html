@@ -1,0 +1,25 @@
+<figure id="fig-profiles" class="scientific-figure" aria-labelledby="profiles-title">
+  <p class="figure-kind">Figure 2 · Catalogue measurement / no fitted model</p>
+  <h3 id="profiles-title">Separate halo exclusion from projected contamination</h3>
+  <div class="enhance-controls" hidden>
+    <div id="profile-modes" class="viz-controls" role="group" aria-label="Profile diagnostic">
+      <button type="button" data-mode="projected" aria-pressed="true">Projected galaxy census</button>
+      <button type="button" data-mode="centres" aria-pressed="false">Real-space halo centres</button>
+    </div>
+    <div class="viz-controls"><label>Conditioning sample <select id="profile-sample"><option value="narrow">162 halos · 0.5 ≤ z &lt; 0.8 · 10¹⁴–3 × 10¹⁴ M☉</option><option value="broad">339 halos · 0.4 ≤ z &lt; 1 · M ≥ 10¹⁴ M☉</option></select></label></div>
+    <p class="viz-status" id="profile-status" role="status" aria-live="polite"></p>
+  </div>
+  <div id="profile-plot" class="interactive-plot" role="img" aria-label="Cluster-centric profiles in logarithmic radial bins from 0.1 to 5 virial radii. Static views and data are available below."></div>
+  <div class="static-fallback">
+    <a href="../assets/cluster/profiles-projected.svg"><img src="../assets/cluster/profiles-projected.svg" alt="Mean projected total, primary-host, complementary and matched-random galaxy profiles around 162 massive halos. The complementary profile remains above random even near the projected centre and toward five virial radii. Its across-halo spread is broad." width="940" height="550" loading="lazy"></a>
+    <a href="../assets/cluster/profiles-centres.svg"><img src="../assets/cluster/profiles-centres.svg" alt="The same conditioning halos show zero other-central counts in the innermost true-distance shells, then a marked enhancement around the virial transition and a declining excess toward five virial radii." width="940" height="550" loading="lazy"></a>
+  </div>
+  <details class="static-gallery">
+    <summary>Static profiles and data</summary>
+    <p>The projected complementary profile does not have an empty core. The other-centre profile does show exclusion. Line patterns, titles and units distinguish the measured populations and geometries; the shaded bands are descriptive percentiles, not confidence intervals.</p>
+    <a href="../assets/cluster/profiles-projected.svg"><img src="../assets/cluster/profiles-projected.svg" alt="Projected galaxy-density profiles: total, primary host, complementary, and matched random, with the complementary 16–84 percent spread." width="940" height="550" loading="lazy"></a>
+    <a href="../assets/cluster/profiles-centres.svg"><img src="../assets/cluster/profiles-centres.svg" alt="True-distance other-centre profile: exclusion in the interior, excess near the halo boundary and beyond." width="940" height="550" loading="lazy"></a>
+    <p><a href="../assets/cluster/profiles-per-halo.csv">Per-halo measurements (CSV)</a> · <a href="../assets/cluster/profile-centres.csv">Conditioning centres (CSV)</a></p>
+  </details>
+  <figcaption><strong>The mean is conditional, and the environment varies.</strong> The first view uses identical projected annuli and redshift-space cylinders for total, primary-host and complementary galaxies, so total = primary + complementary. Radius is scaled by each conditioning halo’s virial radius; surface density uses the corresponding comoving annular area. The conditioning central at R = 0 lies below the first radial bin. Matched random sightlines use the same radius, redshift and footprint rule. The second view measures other selected central galaxies at host true distances; it is not a reconstructed real-space satellite distribution. Inner zeros remain visible on a linear density axis. Bands show the 16th–84th percentiles across halos. Zero percentile bounds and zero primary densities are omitted on the logarithmic surface-density axis; no positive floor is substituted. Mass/redshift mixing, shot noise and overlapping apertures mean this spread is <em>not</em> the model’s residual covariance. <a href="#data">Units, mask assumption and estimator</a>.</figcaption>
+</figure>

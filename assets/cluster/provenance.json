@@ -1,28 +1,168 @@
 {
-  "source": "27277.csv.bz2",
-  "sha256": "9d8bcd09ab592cf884ec955b2e7521d108317e963eee248815c77bf5482f12c0",
-  "source_rows": 530570,
-  "source_columns": 21,
-  "source_catalogue": "euclid_fs2_mock_dr_v1_1_phz",
-  "source_query": "HEALPix NESTED order-6 pixel containing (RA, Dec) = (190 deg, 60 deg); positive euclid_nisp_h; H_AB < 26",
-  "export_utc": "2026-09-22T16:06:26+00:00",
-  "illustrative_halo_id": "4040470062983",
-  "nearby_halo_id": "4040470064477",
-  "foreground_halo_id": "3838420219862",
-  "centre_ra_deg": 189.68779,
-  "centre_dec_deg": 59.7051,
-  "host_true_redshift": 0.7255272,
-  "half_width_arcmin": 6.0,
-  "h_ab_limit": 22.5,
-  "selection": "abs(x_arcmin)<6, abs(y_arcmin)<6, H_AB<22.5; no redshift cut; no random downsampling",
-  "selected_rows": 2737,
-  "selected_primary_rows": 160,
-  "selected_nearby_rows": 35,
-  "selected_foreground_rows": 33,
-  "redshift_column": "observed_redshift_gal (simulation redshift; not a photo-z estimate)",
-  "identity": "source_row is the zero-based data-row index; host labels are simulation truth, not inferred membership",
-  "choice": "A deliberately chosen interior rich halo for explanation, not a random or representative validation target.",
-  "raw_source_included": false,
-  "toy_seed": 271828,
-  "figure_status": "Scene panels use the supplied mock. All other figures are explicitly specified pedagogical calculations, not fitted results."
+  "source": "flagship_hp4x2.csv.gz",
+  "sha256": "424f2ca1a5a9e8a46fc5291536899dda1467780c152722371357accb918414e7",
+  "rows": 4997763,
+  "columns": 21,
+  "h24_rows": 4997763,
+  "centres_all": 3194690,
+  "centres_h24": 3194690,
+  "kind_counts": {
+    "0": 3194690,
+    "1": 1803073
+  },
+  "bounds": {
+    "ra_gal": [
+      180.0,
+      189.99776
+    ],
+    "dec_gal": [
+      57.40325,
+      66.44118
+    ],
+    "observed_redshift_gal": [
+      0.004450265,
+      3.009793
+    ],
+    "true_redshift_halo": [
+      0.0023818281,
+      2.9996185
+    ],
+    "euclid_nisp_h": [
+      9.120109600000001e-30,
+      3.5094394e-24
+    ],
+    "lm_halo": [
+      9.98126,
+      15.14364
+    ],
+    "rvir_halo": [
+      25.830948,
+      2392.163
+    ]
+  },
+  "nonpositive_or_invalid_h_flux": 0,
+  "massive_centres_lm14": 290,
+  "h_flux_units_status": "inherited cgs f_nu convention from supplied draft; check source metadata",
+  "radius_units_status": "Adopted comoving h^-1 kpc; internally consistent, export metadata not supplied.",
+  "area_deg2": 26.857396646757337,
+  "adopted_hp_order": 4,
+  "adopted_hp_nested_ids": [
+    702,
+    703
+  ],
+  "cosmology": {
+    "h": 0.67,
+    "Omega_m": 0.319,
+    "Omega_lambda": 0.681,
+    "distance_approximation": "flat matter+Lambda; ignore small separate radiation/neutrino expansion terms for illustration"
+  },
+  "radius_convention": "rvir_halo /1000 interpreted as comoving Mpc/h; supported by internal spherical-overdensity consistency, no export unit header supplied",
+  "mass_convention": "lm_halo=log10(M/(Msun/h)); physical mass=10**lm_halo/h; inherited Flagship/ROCKSTAR convention",
+  "h_flux_convention": "cgs f_nu, H_AB=-2.5log10(flux)-48.6; inherited from draft and consistent with exact H<24 limit",
+  "mass_cut_physical_msun": 100000000000000.0,
+  "massive_centres": 715,
+  "massive_interior_centres": 590,
+  "profile_halos": 339,
+  "profile_z_limits": [
+    0.4,
+    1.0
+  ],
+  "profile_default_halos": 162,
+  "profile_default_mass_limits_msun": [
+    100000000000000.0,
+    300000000000000.0
+  ],
+  "profile_default_z_limits": [
+    0.5,
+    0.8
+  ],
+  "radial_edges_rvir": [
+    0.1,
+    0.12427598742099694,
+    0.15444521049463789,
+    0.19193831036664843,
+    0.23853323044733007,
+    0.2964395274656216,
+    0.36840314986403866,
+    0.45783665218358915,
+    0.5689810202763907,
+    0.7071067811865475,
+    0.8787639344404101,
+    1.0920925566254218,
+    1.3572088082974532,
+    1.6866846478764053,
+    2.096144000826768,
+    2.6050036547934563,
+    3.2373940143476263,
+    4.023303378038764,
+    5.0
+  ],
+  "los_half_depth_cmpc_h": 20.0,
+  "random_apertures_per_halo": 12,
+  "profile_seed": 260923,
+  "halo_centre_reference": "central galaxies selected H<24; true halo redshift; density reference in z+-0.025 slice; no real-space galaxy positions inferred",
+  "profile_uncertainty": "between-halo spread, not standard error or inferred latent covariance; overlapping apertures and varying mass/z remain",
+  "scene": {
+    "primary_id": "4039480311176",
+    "aligned_id": "4039470670730",
+    "primary_z": 0.7680636,
+    "aligned_z": 0.739677,
+    "angular_separation_arcmin": 2.117819330968553,
+    "ra0_deg": 185.85913,
+    "dec0_deg": 61.773933,
+    "half_width_arcmin": 6,
+    "rows": 7341,
+    "primary_rows": 183,
+    "aligned_rows": 96,
+    "selection": "H<24; abs(x)<6arcmin, abs(y)<6arcmin; no redshift selection",
+    "synthetic_pdz": {
+      "seed": 271828,
+      "variable": "s=ln(1+z)",
+      "sigma_formula": ".015+.035*clip((H-20)/4,0,1)",
+      "weights": [
+        0.04,
+        0.92,
+        0.04
+      ],
+      "alias_shifts": [
+        -0.25,
+        0,
+        0.25
+      ],
+      "scale_factors": [
+        1.5,
+        1,
+        1.5
+      ],
+      "source_prior": "uniform in s on 0<z<3.2, density in z proportional to 1/(1+z)",
+      "status": "new illustrative full PDZ distributions, not supplied or validated Euclid photo-zs"
+    },
+    "choice": "Deliberately chosen aligned halo pair after inspecting the catalogue, not a representative validation sample."
+  },
+  "figure_status": "empirical mock diagnostics and explicitly synthetic PDZ illustrations; no pipeline inference or performance results",
+  "reference_visualization": {
+    "source": "entire supplied H<24 catalogue, observed_redshift_gal",
+    "grid_edges": [
+      0,
+      3.2
+    ],
+    "bins": 800,
+    "gaussian_smoothing_bins": 3,
+    "normalization": "unit integral over midpoint grid",
+    "status": "mock-derived fixed teaching reference, not independently calibrated survey n(z)"
+  },
+  "radius_consistency_check": {
+    "method": "Bryan-Norman spherical-collapse overdensity relative to critical density; expected comoving radius divided by exported radius/1000",
+    "halo_lm_min": 14,
+    "n": 290,
+    "median_ratio": 1.000030323718001,
+    "p10_ratio": 0.9968448846767434,
+    "p90_ratio": 1.0027553515423928,
+    "status": "Internal cross-check only; cannot independently authenticate export units."
+  },
+  "pdz_display": {
+    "map": "exact truncated-mixture CDF differences; no display-window renormalization",
+    "cloud": "25 deterministic equal-probability nodes per highlighted galaxy, weight 1/25; finite visualization, full analytic PDZ is retained",
+    "inference_status": "No posterior fit or validation result."
+  }
 }

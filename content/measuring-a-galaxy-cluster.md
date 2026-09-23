@@ -1,246 +1,65 @@
 # Measuring a galaxy cluster in a crowded Universe
 
-A cluster candidate is an excess of galaxies in a patch of sky. It is not yet a set of galaxies whose physical association has been settled. A concentration on one side might belong to the cluster’s outskirts, to a neighbouring group, or to a foreground structure that happens to lie in the same direction.
+Galaxy clusters connect two very different scales of cosmology. Their internal galaxy populations occupy compact regions, but the abundance and clustering of the dark-matter halos that host them reflect the growth of structure across the Universe. Massive halos lie on the rare tail of the halo population: changing the fluctuation amplitude or growth history changes how many form. Their redshift distribution also depends on cosmological volume. This makes clusters valuable cosmological probes—and makes the route from an observed concentration of galaxies to a well-defined cluster observable consequential.[^cosmology]
 
-That ambiguity matters before we ask how a cluster’s galaxy population changes with radius. Where is the population centred? How extended is it? How many of the galaxies we could observe does it contribute? An answer to any one of these questions can depend on the answer to the others—and on what we allow the surroundings to explain.
+Schematically, the expected number of halo-associated detections whose measured properties fall in a bin \(B\) is
 
-The aim of this refinement model is to carry that competition into the measurement itself. Starting from a supplied candidate, we infer the primary cluster’s galaxy distribution and its environment together. **The target is the primary galaxy population, not a direct dark-matter mass measurement.** The environment is a nuisance in the statistical sense: it is not the quantity we ultimately want, but its uncertainty is part of our uncertainty about that quantity.
+\[
+\begin{aligned}
+\mathbb E[N_{\rm det}(B)]={}&\int d\Omega\,dz\,
+\frac{dV}{d\Omega\,dz}(z;\varphi)
+\int d\ln M\,\frac{dn}{d\ln M}(M,z;\varphi)\\
+&\times P(\mathrm{det},\widehat O\in B\mid M,z;\psi).
+\end{aligned}
+\label{eq:cosmological-counts}
+\]
 
-This is a difference of emphasis, not a claim that existing finders merely detect. AMICO, for example, already estimates amplitudes and membership probabilities and treats local-background variation.[^amico] The question here is how to construct a local, joint probability model for an individual candidate.
+This form assumes a unique primary-halo association; false detections require an additional contribution. Here \(\varphi\) denotes cosmological parameters and \(\psi\) the galaxy–halo relation, observing conditions, and analysis choices. The last factor is a **joint detection-and-measurement response**, not necessarily a product of an independent completeness function and an independent measurement error. A line-of-sight structure can both promote a candidate into the catalogue and increase its measured richness. Scatter and selection then matter together, especially where the mass function is steep.[^projection]
 
-We will build it in stages. A homogeneous background is a useful baseline. Conditioning on a halo changes the expected environment. A random field then describes how this particular environment can depart from that expectation. Finally, the whole model must pass through the same selection and measurement process as the data.
+This article concerns one part of that response: **refining the primary galaxy population around an already supplied candidate while retaining uncertainty about its environment**. The outputs are a centre, redshift, galaxy-profile parameters, a selected richness, and probabilistic memberships. They are not a direct dark-matter mass measurement. Connecting them to the first equation still requires mass calibration and a survey-level selection model.
 
-<aside class="article-note"><p><strong>Reading this note.</strong> The main text develops the model and its motivation. The <a href="cluster-derivations.html">derivation companion</a> gives the probability calculations, conditioning assumptions, and selection bookkeeping in full. The figures explain the construction; none is a reported recovery result from the refinement pipeline.</p></aside>
+### From finding an overdensity to interpreting it
 
-## One scene, different information {#one-scene}
+Optical cluster finding already has a substantial probabilistic literature. redMaPPer combines a red-sequence model with spatial and luminosity information, probabilistic membership, and uncertain centring.[^redmapper] AMICO uses an optimal filter, assigns membership probabilities, and includes a local-background correction.[^amico] PZWav searches photometric-redshift slices with a wavelet-style filter and distributes each galaxy across slices using its full redshift probability distribution. AMICO and PZWav were selected in the published Euclid Cluster Finder Challenge.[^cfc]
 
-The following views contain exactly the same **2,737 mock galaxies**. They come from a fixed, deliberately chosen neighbourhood in the public Euclid Flagship 2 galaxy mock.[^flagship] On the sky, the populations overlap. Reveal their simulation host labels and the problem becomes easier to see: a primary, another host at a similar redshift, and a foreground host all contribute near the apparent centre.
+The distinction here is therefore not “existing algorithms detect; this model measures.” Detection, membership, and measurement already overlap. The more specific question is whether a **local, joint generative model of the primary and a fluctuating external population** can carry environmental ambiguity into the primary posterior. A PDZ-weighted map is a useful detection statistic; it is not automatically a likelihood for independent counts in those redshift slices.
+
+The argument will proceed from what is actually observed to what generates it. First we keep the catalogue selection and distance uncertainty explicit. Then we ask what a halo’s surroundings should look like on average, what is lost by replacing a particular environment with that average, and how a positive random field supplies controlled alternatives. These pieces lead to one joint likelihood rather than a background subtraction followed by a separate cluster fit.
+
+## The same galaxies, different distance information {#one-scene}
+
+Consider a fixed \(12\times12\) arcmin patch in the Flagship catalogue used here. With \(H_{\rm AB}<24\), it contains **7,341 galaxies**, including 183 assigned to one halo at \(z_h=0.7681\) and 96 to an aligned halo at \(z_h=0.7397\). Their centres are only about 2.12 arcmin apart. The neighbourhood was deliberately chosen to expose an ambiguity, not to represent an average cluster.
 
 <!-- FIGURE:scene -->
 
-The redshift-space view supplies information that an image alone does not. It is still not a map of true three-dimensional positions: the exported galaxy redshift includes peculiar-velocity effects.[^flagship] More importantly, this export contains no individual photometric-redshift likelihoods. We should not mistake its simulated redshifts for the noisy distance information of an imaging survey.
+The redshift-space view separates structures that overlap in angle. But the exported `observed_redshift_gal` is a simulation redshift that includes peculiar-velocity effects; it is neither a photometric estimate nor a true real-space radial coordinate. This catalogue export contains **no individual PDZ arrays**. The full-PDZ view therefore adds a declared synthetic measurement model to exactly the same galaxies. It does not claim to reproduce Euclid’s calibrated photo-z performance.
 
-In that survey, angular positions and distances play very different observational roles. A galaxy can be well located on the sky while its photometry supports a broad range of redshifts, or several separate ranges. Spectroscopic studies of optically selected clusters demonstrate the resulting projection contamination.[^projection] The anisotropy is in our information, not a preferred direction in the underlying Universe.
+For this illustration, put \(s=\ln(1+z)\) and generate a noisy measurement \(t_i\) from a three-component Gaussian mixture around the galaxy’s simulated redshift. The dominant component has width \(\sigma_{s,i}=0.015+0.035\,\mathrm{clip}[(H_i-20)/4,0,1]\); the two alias components are displaced by \(\pm0.25\) in \(s\), have widths \(1.5\sigma_{s,i}\), and each carry probability 0.04. A prior uniform in \(s\) over \(0<z<3.2\) produces a normalized, generally multimodal PDZ for every galaxy. Thus \(\sigma_z/(1+z)\) is approximately 0.015–0.05 for the dominant component, **by construction**, not by measurement.
 
-Choosing a single best redshift would choose one explanation before the cluster model has compared the alternatives. Instead, each galaxy carries evidence about an unknown distance. A broad likelihood still belongs to **one observed galaxy**. It is not a collection of independent fractional galaxies spread along a line of sight.
+The important visual operation is not to give every galaxy one displaced point. It is to replace one known radial coordinate with a distribution of possible coordinates. In the PDZ map, a galaxy contributes a total probability of one across the full redshift domain. The interactive view can reveal the other hosts and inspect individual distributions; zooming does not renormalize probability into the displayed interval.
 
-There is also a boundary to the experiment. We explain the galaxies admitted by a fixed selection rule in a fixed angular footprint, including its coverage and mask. That catalogue and footprint do not change when the fitted centre or redshift moves. Otherwise, a change in the model would quietly change the data being explained.
+The uncertainty is highly anisotropic: sky positions are precise while distance information is broad. The cluster model should exploit the angular information without prematurely resolving the distance ambiguity. A broad PDZ still belongs to **one observed object**.
 
-## A baseline that knows how to count {#poisson}
+## A likelihood that explains positions and counts {#point-process}
 
-Set the observational complications aside for a moment. Suppose the galaxies’ true positions are known in a fixed, completely observed region \(W\). Write
+An intensity \(\Lambda(x)\) specifies an expected number per unit coordinate measure. Its integral is an expected count, not necessarily one. To obtain a probability law for a catalogue, we also need a sampling model.
 
-\[
-\Lambda_0(x;\theta)=\lambda u(x;\theta)+\bar n_g,
-\qquad \int_W u(x;\theta)\,dx=1.
-\label{eq:baseline}
-\]
-
-Here \(u\) is the primary’s spatial profile, \(\theta\) collects the primary parameters, and \(\bar n_g\) is a homogeneous external number density. The normalization makes \(\lambda\) the expected primary count in this idealized region. The first term is the *one-halo* component: galaxies associated with the primary host.
-
-An intensity \(\Lambda\) is an expected number per unit coordinate volume, not a probability density for one galaxy. Its integral is an expected count and need not be one. Nor does an intensity alone specify a random catalogue. We need a rule for drawing points from it.
-
-The baseline rule is a Poisson point process. Conditional on its intensity, counts in disjoint regions are independent, and
+As a baseline, assume conditional Poisson sampling in a fixed region \(W\). Divide it into small cells with means \(\mu_j=\int_{A_j}\Lambda(x)\,dx\). Independent cell counts have likelihood
 
 \[
-N(A)\mid\Lambda\sim\operatorname{Poisson}(\mu_A),
-\qquad \mu_A=\int_A\Lambda(x)\,dx.
-\label{eq:counts}
-\]
-
-Poisson does not mean spatially uniform: the primary already makes this intensity inhomogeneous. It is a sampling law, not a dynamical model of galaxy formation.[^palm]
-
-To derive the likelihood, divide \(W\) into small cells \(A_j\), with expected counts \(\mu_j\) and observed counts \(N_j\). Independence gives
-
-\[
-L=\prod_j\frac{e^{-\mu_j}\mu_j^{N_j}}{N_j!}.
-\label{eq:cell-product}
-\]
-
-As the cells shrink, a cell containing the observed point \(x_i\) contributes \(\Lambda(x_i)\) times a cell-volume factor. Those volume factors do not depend on the parameters. All the exponential factors combine, leaving
-
-\[
-\log L=\sum_i\log\Lambda(x_i)-\int_W\Lambda(x)\,dx+\mathrm{const}.
-\label{eq:poisson-likelihood}
-\]
-
-The two terms ask different questions. Does the model put intensity where galaxies were observed? Does it predict a plausible total count in the observed region? Empty regions contribute through the integral. This is an unbinned likelihood; the small cells are a derivation device, not a requirement to bin the observations. The [companion gives the limiting argument and its assumptions](cluster-derivations.html#point-process).
-
-This baseline accounts for a concentrated primary and discrete sampling. But changing one background number cannot represent a coherent gradient or an external group. Some of that structure could instead be explained by changing the primary’s amplitude, scale, or centre. That need not happen in every patch; it is the failure mode the next extension addresses.
-
-## A halo does not live at a random location {#conditional-mean}
-
-Imagine placing many apertures at random locations, then placing many on halo centres. These are different sampling experiments. The second selects environments associated with halos. Its expected galaxy density is related to a halo–galaxy cross-correlation, not just to the global mean.[^halo]
-
-The mathematical language for the distribution seen from a typical point of a point process is a *Palm distribution*.[^palm] Here the conditioning point is a halo centre, while the surrounding points are galaxies. We must keep the two populations distinct.
-
-Let \(\bar n_h\) be the halo intensity and let \(\rho^{(2)}_{hE}(0,x)\) be the mixed joint intensity of a halo at the origin and an **external** galaxy at \(x\). The definition of the cross-correlation gives
-
-\[
-\begin{aligned}
-\rho^{(2)}_{hE}(0,x)&=\bar n_h\bar n_g[1+\xi_{hE}(x)],\\
-\overline\Lambda_E(x\mid h_0)
-&=\frac{\rho^{(2)}_{hE}(0,x)}{\bar n_h}
-=\bar n_g[1+\xi_{hE}(x)].
-\end{aligned}
-\label{eq:palm-mean}
-\]
-
-The subscript \(E\) matters. A full halo–galaxy cross-correlation includes the primary’s own galaxies. Adding a separate primary to that mean would count its population twice. External-only moments must consistently omit contributions from the tagged host. Reduced Palm conditioning alone does not perform that host subtraction; it removes the conditioning point from the point process to which that point belongs.
-
-In halo-model language, the contribution associated with other halos is the *two-halo contribution*. It is not a fit to one particular second halo. On sufficiently large scales, a bias approximation relates its correlated excess to the matter correlation.[^halo]
-
-The design used here prescribes the following environmental factor:
-
-\[
-\begin{aligned}
-H(r;\theta)&=E(r/R_*)\,[1+A_*\xi_L(r,0)],\\
-A_*&=b_h(M_{\rm fid},z_*)\,b_g(z_*)\,D^2(z_*).
-\end{aligned}
-\label{eq:environment-factor}
-\]
-
-The halo and galaxy biases \(b_h\) and \(b_g\) describe their large-scale clustering response relative to matter. The linear growth factor is normalized by \(D(0)=1\); \(\xi_L(r,0)\) is the present-day linear matter correlation. Distances and the exclusion scale \(R_*\) must use a consistent convention.
-
-The factor \(E\) introduces effective exclusion near the primary in three dimensions. It multiplies the **whole bracket**, not just its correlated excess. Otherwise a baseline external population would remain inside the nominally excluded core. Its scale and transition are modeling choices, not a complete calculation of neighbouring halos. The fiducial mass \(M_{\rm fid}\) is a calibration input, not a mass measured by this fit. The chosen prescription must keep \(H\geq0\) over its domain.
-
-<!-- FIGURE:mean -->
-
-Exclusion is not a hole cut out of the image. A foreground galaxy can project directly onto the primary’s centre and still be far outside its excluded three-dimensional neighbourhood. In the opening scene, the foreground host should remain a possible explanation for projected central galaxies.
-
-Our second model is therefore
-
-\[
-\Lambda_1(x;\theta)=\lambda u(x;\theta)+\bar n_g H(x;\theta).
-\label{eq:conditioned-poisson}
-\]
-
-We have changed what we expect around a halo. But an average neighbourhood is not the actual neighbourhood of this halo.
-
-## A mean environment is not this environment {#cox}
-
-A fixed mean can produce chance concentrations through Poisson sampling. It cannot make the underlying expected density itself vary coherently between two otherwise similar patches. A neighbouring group, for example, changes the local intensity from which galaxies are drawn, not just the outcome of one draw.
-
-Change the generative experiment: first draw an external intensity field, then draw the galaxies conditional on that field and the primary. A Poisson process driven by a random intensity is a *Cox process*.[^palm] We write
-
-\[
-\begin{aligned}
-\Lambda_2(x;\theta,F)&=\lambda u(x;\theta)+\bar n_gH(x;\theta)F(x),\\
-F(x)&>0,\qquad \mathbb E[F(x)]=1.
-\end{aligned}
-\label{eq:cox-model}
-\]
-
-There are still two additive populations: primary and external. The multiplier \(F\) modulates the external population; it is not a third population added on top.
-
-The distinction between the two kinds of randomness can be derived without spatial machinery. The expected count \(\mu_A\) is now random. Conditional on it, the Poisson mean and variance are both \(\mu_A\). Total variance gives
-
-\[
-\begin{aligned}
-\operatorname{Var}[N(A)]
-&=\mathbb E[\operatorname{Var}(N(A)\mid F)]
- +\operatorname{Var}(\mathbb E[N(A)\mid F])\\
-&=\underbrace{\mathbb E[\mu_A]}_{\text{discrete sampling}}
- +\underbrace{\operatorname{Var}(\mu_A)}_{\text{environmental variation}}.
-\end{aligned}
-\label{eq:total-variance}
-\]
-
-For fixed primary parameters, the second term comes from variation in the environment. It vanishes when the intensity is fixed. Counts in disjoint cells can also become correlated after averaging over the field: their covariance is the covariance of their random expected counts.
-
-<!-- FIGURE:counts -->
-
-Conditional Poisson independence is therefore compatible with a correlated marginal catalogue. Nor is the latent field just a smoothed map of the observed points: it is one of the unobserved objects that could have generated them. The [companion derives both the count variance and cross-cell covariance](cluster-derivations.html#point-process).
-
-This freedom addresses object-to-object environmental variation. It also creates a new problem: what stops the external field from explaining away the primary?
-
-## Give the field freedom—with a cost {#field}
-
-The attribution problem is exact in the simplified expression \(I(x)=\lambda u(x)+B(x)\). Decrease \(\lambda\) by \(\Delta\) and add \(\Delta u(x)\) to \(B(x)\). Whenever both allocations are allowed, the total intensity and its integral are unchanged. **The likelihood cannot distinguish them.** Even the expected-count term cannot resolve an exchange that preserves the total intensity.
-
-A model must restrict which external explanations are available and how probable they are. Too little freedom can force contamination into the primary. Unrestricted freedom can remove the primary. The objective is not to forbid competition, but to make its probability law explicit.
-
-Start with positivity. An additive Gaussian fluctuation can make an intensity negative. Instead, define a finite jointly Gaussian vector over retained field cells and exponentiate it:
-
-\[
-G\sim\mathcal N(0,C),
-\qquad F_j=\exp\!\left(G_j-\frac{C_{jj}}2\right).
-\label{eq:lognormal}
-\]
-
-The covariance \(C\) specifies how the log-field values vary together. The exponential guarantees a positive multiplier. Lognormal–Poisson inference has precedent in large-scale-structure analysis; here the lognormal component describes residual external variation around a separately prescribed mean.[^jasche]
-
-The subtraction is essential. A zero-mean Gaussian variable obeys \(\mathbb E[e^{G_j}]=e^{C_{jj}/2}\), so \(\mathbb E[F_j]=1\). Adding fluctuations does not silently increase the mean external density. This is an **ensemble** normalization, not a rule forcing every realized patch to average to one.
-
-The same Gaussian moment identity yields
-
-\[
-\mathbb E[F_jF_k]=e^{C_{jk}},
-\qquad \operatorname{Cov}(F_j,F_k)=e^{C_{jk}}-1.
-\label{eq:lognormal-moments}
-\]
-
-If \(K\) is the desired fractional covariance of the external intensity, moment matching suggests
-
-\[
-C_{jk}=\log(1+K_{jk}).
-\label{eq:moment-match}
-\]
-
-This logarithm is entrywise, not a matrix logarithm. The entries must exist, and the resulting matrix must be positive semidefinite: every linear combination must have nonnegative variance. Even a positive-semidefinite \(K\) does not guarantee this. The [companion gives a two-cell counterexample](cluster-derivations.html#finite-field).
-
-### Connect the freedom to represented scales
-
-Positivity alone does not protect the primary. The decisive choice is which spatial patterns receive substantial prior probability.
-
-A power spectrum distributes fluctuation variance across spatial scales. Long-wavelength modes vary slowly across a patch; shorter wavelengths can represent more localized structure. In an equal-time Cartesian teaching example, define a cell-averaged fluctuation by \(\delta_j=b_j\int W_j(x)\delta_m(x)\,dx\), with \(\int W_j=1\). Then
-
-\[
-K_{jk}=b_jb_k\int\frac{d^3k}{(2\pi)^3}\,
-P_m(k)\,\widetilde W_j(\mathbf k)\,
-\widetilde W_k(\mathbf k)^*.
-\label{eq:windows}
-\]
-
-The power supplies each mode’s variance; the windows determine what survives averaging in each cell. This is a teaching identity, not the literal survey calculation. The design calls for angular pixels, selected radial windows, population bias, and redshift-dependent nonlinear matter power. A power spectrum supplies second-order statistics; it does not specify the complete environment of a halo.[^halo]
-
-Finite averaging matters. We first construct moments on the represented cells, then match a lognormal law on those cells. Averaging a continuous Gaussian log-field and exponentiating would generally give different moments. Averaging and nonlinear transformation do not commute, and an average of lognormal variables is not generally lognormal.
-
-<!-- FIGURE:prior -->
-
-The Gaussian prior makes the cost of a competing pattern explicit. In an eigenmode of \(C\) with variance \(\kappa>0\), an amplitude \(g\) costs \(g^2/(2\kappa)\) in the negative log density. Patterns with little prior variance are expensive to excite. This is more informative than counting field coordinates or calling a field “smooth”. A zero-variance mode is fixed rather than assigned a finite quadratic penalty.
-
-Still, the lognormal field is unbounded above, and its patterns need not be orthogonal to the primary. A physically plausible external structure should be allowed to compete. Conversely, overly restrictive covariance or coarse cells can force real external structure back into the primary. Resolution and prior calibration are scientific sensitivity questions, not merely numerical settings.
-
-## What Palm conditioning does—and does not—prove {#palm-boundary}
-
-We changed the environmental mean using halo conditioning. Should conditioning also change the residual covariance?
-
-There is an instructive exact case. Suppose the halo-centre and external-tracer intensities are driven by **jointly Gaussian log-fields**, with conditional Poisson sampling for both types. Seeing a halo at the origin reweights each possible field by the halo intensity it places there. For a zero-mean Gaussian vector \(Y\), exponential tilting gives
-
-\[
-Y\sim\mathcal N(0,C)
+L=\prod_j \frac{e^{-\mu_j}\mu_j^{N_j}}{N_j!}
 \quad\Longrightarrow\quad
- e^{t^TY-\frac12t^TCt}p(Y)
- \text{ is the density of }\mathcal N(Ct,C).
-\label{eq:gaussian-tilt}
+\log L=\sum_i\log\Lambda(x_i)-\int_W\Lambda(x)\,dx+\mathrm{const}.
+\label{eq:poisson}
 \]
 
-Completing the square shifts the Gaussian mean and leaves its covariance unchanged. Taking \(t\) to select the halo component shifts the external log-field mean by its cross-covariance with the halo log-field at the origin. Thus the conditioned external intensity factors into a changed mean and a unit-mean lognormal residual. The corresponding single-process reduced-Palm LGCP theorem is established by Coeurjolly, Møller and Waagepetersen.[^lgcp] The [companion works through the multitype calculation](cluster-derivations.html#gaussian-tilt).
+In the shrinking-cell limit, each occupied cell contributes its local intensity times a parameter-independent cell volume; the exponential factors combine into the integral. Equivalently, draw the total count from a Poisson distribution and then draw locations from the intensity normalized by its integral. This is an unbinned likelihood: the cells explain the derivation, not a required representation of the data.[^palm]
 
-In this ideal joint model, the mean factor is \(H(x)=\exp[C_{Eh}(x,0)]\). The Gaussian covariance—and the *fractional* intensity covariance—remains unchanged. The absolute intensity covariance changes with the mean.
+The first term rewards intensity at observed events. The second—the expected-count term, or compensator—penalizes predicting too many events over the observed region. Empty regions therefore carry information. Poisson sampling does not require a uniform intensity: a centrally concentrated cluster already makes it inhomogeneous.
 
-Our practical prescription is **not an exact application of that theorem**. It uses an excluded-linear environmental mean and residual moments built from a separate power-spectrum calculation. A finite Gaussian cross-covariance cannot produce an exactly zero mean, since its exponential is strictly positive. More generally, the covariance of the environment seen from a halo depends on mixed halo–galaxy three-point information, not only an ordinary matter two-point spectrum.
+### Selection is part of the observation model
 
-The construction is therefore a conditional approximation: a specified mean and physically motivated residual moments stand in for the full joint distribution of a halo and its environment. Using linear correlation for the mean and nonlinear power for residual variation reflects their different jobs. It does not establish the accuracy of their combination, particularly near the primary. That combination needs testing.
-
-There is a second boundary. A *known halo* and a *candidate selected by a finder* are not the same conditioning event. The finder may select on the very observations used again in the local fit. Palm reasoning does not, by itself, model false positives, finder selection, or the reuse of data. A positive-richness refinement model is not automatically a calibrated probability that a halo exists.
-
-## Forward through the observation {#observation}
-
-So far we have described possible latent galaxy distributions. The data are observations of those galaxies. The bridge must be a forward model, not an assignment of every object to a best-fit distance.
-
-Let \(x\) denote a latent coordinate, \(y\) a measurement, \(k(y\mid x)\) a normalized measurement kernel, and \(s(y)\) the probability that the measurement is admitted. Given independent measurements and selection conditional on the latent intensity, the observed intensity is
+The latent galaxies are not the catalogue. Let \(x\) include the true quantities needed to predict an observation \(y\), let \(k(y\mid x)\) be a normalized measurement kernel, and let \(s(y)\) be the admission probability. Independent marking and selection, conditional on the latent intensity, give
 
 \[
 \begin{aligned}
@@ -252,132 +71,458 @@ Let \(x\) denote a latent coordinate, \(y\) a measurement, \(k(y\mid x)\) a norm
 \label{eq:observation}
 \]
 
-Every latent galaxy contributes according to the probability of the measurements it could produce. **Both populations pass through this operation.** The same admission rule must also determine the expected observed count. The likelihood still has its event term and its expected-count term, now in observation space.
+The same observing rule enters both the event responses and the expected count. Neither the primary nor the external population can bypass it. Catalogue-dependent deblending or correlated photometric errors would require extensions to the independent-measurement assumption.
 
-A redshift likelihood \(\ell_i(z)\) describes the information in one galaxy’s measurement about \(z\). It can remain broad or multimodal throughout inference. A supplied posterior is not automatically that likelihood: Bayes’ rule includes the source prior. Dividing out a known prior, with appropriate support and consistent nuisance-variable treatment, is not optional bookkeeping.
-
-<!-- FIGURE:likelihood -->
-
-Selection can be organized in two equivalent ways: a parent intensity with explicit admission, or a selected latent intensity with a measurement kernel normalized conditional on admission. Mixing the two would apply selection twice. The [companion derives this equivalence](cluster-derivations.html#observation-operator) and separately records the empirical-reference convention used in the design.
-
-### What the richness actually means
-
-The primary is approximated as thin in latent redshift, at \(z_*\). This is motivated by a compact primary viewed through broad photometric-distance uncertainty, not by an assertion that all its observed redshifts are identical. More informative distance measurements would require revisiting the approximation.
-
-Let \(U(\omega;\theta)\) be the primary angular profile and \(w(\omega)\) the fixed coverage. Normalize it over the fixed footprint \(\Omega\):
+It is often simpler to model the **selected latent population** directly. Define
 
 \[
-\int_\Omega w(\omega)U(\omega;\theta)\,d\omega=1.
-\label{eq:covered-normalization}
+\Lambda_R(x)=\alpha(x)\Lambda(x),\qquad
+k_R(y\mid x)=\frac{s(y)k(y\mid x)}{\alpha(x)}.
+\label{eq:selected-kernel}
 \]
 
-Now \(\lambda\) has its scientific meaning: **the expected selected primary count in the fixed covered footprint**. It is not an intrinsic three-dimensional richness. If the centre moves, the covered normalization of its profile changes; the footprint and catalogue do not.
+Where \(\alpha>0\), \(k_R\) integrates to one and \(\nu(y)=\int k_R(y\mid x)\Lambda_R(x)\,dx\). Consequently \(\mu_{\rm obs}=\int\Lambda_R\). This is the convention used below: flux admission is already absorbed into the selected population and its compatible measurement kernel. Applying that admission probability again would select the population twice.
 
-The design uses a projected, truncated NFW family for the galaxy profile. This is an interpretable shape choice, not a claim that every galaxy population follows the dark-matter profile. A scale of that fitted galaxy profile is not automatically a simulated halo radius. The [companion gives the generic projection and normalization](cluster-derivations.html#selected-model), without choosing an undocumented truncation function.
+The angular footprint, mask, and admitted catalogue remain **fixed throughout a fit**. Changing the fitted centre must not add or remove observations. A finder may define the initial patch, but a trial parameter value does not redefine the experiment.
 
-Writing \(\chi\) for comoving distance, the selected latent intensity per solid angle and distance is
+## A compact primary seen through broad PDZs {#primary-pdz}
+
+Let \(\omega\) denote sky position, \(z\) latent cosmological redshift, and \(w(\omega)\) fixed angular coverage. Write the selected intensity per \(d\omega\,dz\) as
+
+\[
+\Lambda_R(\omega,z)=w(\omega)
+\left[\lambda U(\omega;\theta)g_P(z;\theta)+B(\omega,z)\right],
+\label{eq:primary-external}
+\]
+
+where \(B\) is the external intensity before angular coverage, \(\int g_P\,dz=1\), and
+
+\[
+U(\omega;\theta)=
+\frac{\widetilde U(\omega;\theta)}
+{\int_\Omega w(\omega')\widetilde U(\omega';\theta)\,d\omega'},
+\qquad \int_\Omega wU\,d\omega=1.
+\label{eq:primary-normalization}
+\]
+
+This defines \(\lambda\) precisely: **the expected number of admitted primary galaxies in the fixed covered footprint**. If the centre or scale changes, the denominator changes; the footprint does not. Richness in a standardized physical aperture, or above a standardized luminosity threshold, would be a different observable requiring an explicit conversion and its uncertainty.
+
+The primary’s angular shape can be obtained by projecting an NFW-like galaxy number-density profile with an integrable outer truncation.[^nfw] For comoving radius \(r\), projected comoving separation \(R\), and comoving distance \(\chi_*\),
 
 \[
 \begin{aligned}
-\Lambda_R(\omega,\chi)=w(\omega)\bigl[
- &\lambda U(\omega;\theta)\delta_D(\chi-\chi_*)\\
- &+\rho_R(\chi)H(\omega,\chi;\theta)F(\omega,\chi)\bigr].
+n_P(r)&\propto
+\frac{T(r)}{(r/r_s)(1+r/r_s)^2},\\
+\Sigma_P(R)&=2\int_R^\infty
+\frac{n_P(r)r}{\sqrt{r^2-R^2}}\,dr,\\
+\widetilde U(\omega;\theta)&\propto
+\chi_*^2\Sigma_P\!\left(\chi_*\vartheta(\omega,\omega_*)\right).
 \end{aligned}
-\label{eq:selected-intensity}
+\label{eq:projection}
 \]
 
-The selected reference \(\rho_R\) already has units per solid angle and comoving distance; an extra \(\chi^2\) volume factor would be incorrect. It can vary with distance even in the homogeneous-external model. Thus “homogeneous background” ultimately means no additional angular environmental structure, not a flat redshift distribution.
+The factor \(\chi_*^2\) converts projected comoving area into solid angle; normalization then removes the arbitrary profile amplitude. Here \(r_s\) and the truncation describe **galaxies**, not a measured dark-matter profile. 
 
-Individual redshift likelihoods belong in this observation calculation. They are not one universal extra smoothing kernel to insert into the prior covariance. The uncertainty of a particular distance and the prior variation of an intensity field describe different things.
+A compact primary is thin compared with broad photometric-distance errors, suggesting \(g_P(z;\theta)\simeq\delta_D(z-z_*)\). This is a latent-depth approximation, not a claim that all measured redshifts coincide. Peculiar velocities belong in the observation kernel: in a more complete treatment, a native likelihood is averaged over \(z_{\rm spec}\simeq z+(1+z)v_\parallel/c\). Neglecting that convolution is justified only when the relevant PDZ features are broad compared with both the primary’s depth and velocity-induced redshift spread. It must be revisited for spectroscopy or unusually narrow PDZ modes.
 
-## Infer the cluster and the ambiguity together {#inference}
+### A PDZ is not automatically a likelihood
 
-Let \(\nu_i^P\) and \(\nu_i^E\) denote the primary and external responses for observation \(i\), including the observation and selection conventions. The likelihood becomes
+For one galaxy with photometric data \(d_i\), write \(\mathcal S\) for catalogue admission. A source photo-z posterior obeys
 
 \[
-\log L(\theta,G)=
-\sum_i\log[\nu_i^P(\theta)+\nu_i^E(\theta,G)]
--\lambda-\mu_E(\theta,G)+\mathrm{const}.
-\label{eq:joint-likelihood}
+p_{{\rm src},i}(z\mid d_i,\mathcal S)
+=\frac{\ell_i(z)\,\pi_{{\rm src},i}(z\mid\mathcal S)}{Z_{{\rm src},i}},
+\qquad
+\ell_i(z)\propto
+\frac{p_{{\rm src},i}(z\mid d_i,\mathcal S)}{\pi_{{\rm src},i}(z\mid\mathcal S)}.
+\label{eq:pdz-likelihood}
 \]
 
-The external field contributes at the observed galaxies **and** to its expected count \(\mu_E\). The environmental mean depends on the primary state, so moving the primary can change the external explanation. Both components must be evaluated at the same joint state.
+The source prior may depend on magnitude, type, or other conditioning information. Dividing it out recovers a usable likelihood only with matching support, selection, and nuisance-variable marginalization. An implicit or unknown prior, clipped tails, or an incompatible spectral-type mixture cannot be repaired by relabelling a PDF “the likelihood.” This is the same issue that arises when combining individual photo-z posteriors into a population-level redshift inference.[^pdz]
 
-Priors complete the posterior. To learn about the primary, integrate over the field:
+For clarity, the equations below assume that \(\ell_i(z)\) represents a calibrated, admission-conditioned measurement likelihood usable for both populations, up to a factor independent of all fitted quantities. That is a substantive compression assumption. A red primary population and a mixed external population may require explicit luminosity/type marks or different marginalized kernels. Photometry already used in a PDZ must not be multiplied in again as independent colour evidence.
+
+Under these assumptions, the event responses are
 
 \[
+\begin{aligned}
+\nu_i^P&=w_i\lambda U_i\int g_P(z;\theta)\ell_i(z)\,dz
+\simeq w_i\lambda U_i\ell_i(z_*),\\
+\nu_i^E&=w_i\int B(\omega_i,z)\ell_i(z)\,dz.
+\end{aligned}
+\label{eq:event-responses}
+\]
+
+This expresses the asymmetry directly. The thin primary tests the evidence near one common redshift. The environment integrates its competing intensity along the entire uncertain sightline. A secondary PDZ mode can support an external structure even when the highest PDZ peak lies near the candidate.
+
+Most importantly, the likelihood contribution of this object is \(\log(\nu_i^P+\nu_i^E)\): **integrate over its unknown distance, add the possible origins, then take one logarithm**. It is not \(\int p_i(z)\log\Lambda_R(\omega_i,z)\,dz\), and it is not a product of independent fractional observations. Those alternatives perform different statistical operations.
+
+We now have a meaningful primary and a correct place for its PDZs. What remains is to specify \(B\).
+
+## A halo is not a random place in the Universe {#conditional-mean}
+
+A homogeneous external reference is a useful baseline: \(B(\omega,z)=\rho_R(z)\), where \(\rho_R\) is the selected number per unit solid angle and redshift, before angular coverage. “Homogeneous” here means no extra angular structure, not a flat redshift distribution. If instead the reference were supplied per comoving volume, the conversion would be \(\rho_R(z)=\bar n_R(z)\chi^2(z)c/H_{\rm cos}(z)\) in a flat geometry. A reference already expressed per \(d\omega\,dz\) must not receive that Jacobian twice.
+
+However, a halo-centred aperture is not a randomly centred aperture. Halos trace large-scale structure, and finite halo sizes affect which neighbouring centres can occur nearby. The catalogue lets us inspect these two statements without first running the refinement model.
+
+<!-- FIGURE:profiles -->
+
+The projected galaxy census uses 339 interior centres with adopted physical mass \(M\geq10^{14}M_\odot\) and \(0.4\leq z_h<1\); the default view restricts this to **162 halos** with \(M<3\times10^{14}M_\odot\) and \(0.5\leq z_h<0.8\). For each centre, logarithmic annuli extend from \(0.1\) to \(5r_{\rm vir}\). Galaxies lie in a redshift-space cylinder with half-depth \(20\,h^{-1}\) comoving Mpc around the central galaxy’s observed redshift. For population \(a\),
+
+\[
+\Sigma_{h,j}^{a}=
+\frac{N_{h,j}^{a}}
+{\pi r_{{\rm vir},h}^{\,2}(x_{j+1}^2-x_j^2)},
+\qquad
+\overline\Sigma_j^{a}=\frac{1}{N_h}\sum_h\Sigma_{h,j}^{a},
+\quad x=R/r_{{\rm vir},h}.
+\label{eq:profile-estimator}
+\]
+
+Total, primary-host, and other-host counts use exactly the same cylinder and annulus; hence their decomposition is exact for these selected rows. The reference uses twelve random angular centres per halo with the same radius, redshift, and boundary requirement. Curves are equal-halo means, not a pooled count divided by a pooled area. The external band is the 16th–84th percentile spread **across halos**, not an error on the mean.
+
+The external surface density is not zero in the projected core. In the default sample it remains elevated relative to matched random sightlines, and that excess persists toward \(5r_{\rm vir}\). There is substantial variation between environments. Both are directly relevant to modelling a primary against a non-uniform external population.
+
+The second view uses a different observable: **other central galaxies placed at their host’s true redshift**, giving a three-dimensional halo-centre proxy. It reveals a strongly depleted inner region and an enhanced surrounding population. This does not manufacture real-space satellite coordinates: those are absent from the export. The centre diagnostic and the projected galaxy diagnostic are deliberately not presented as the same profile.
+
+The distinction matters physically. Halo-centre exclusion concerns separations of finite hosts; external galaxies are those hosts’ spatially extended tracers. Projection then includes foreground and background galaxies even at zero projected separation. Moreover, Flagship assigns some satellites beyond their host’s virial radius, so a radial cut is not equivalent to a host label.[^flagship] Neither a central hole in the image nor a sharp galaxy boundary at \(r_{\rm vir}\) follows from halo exclusion.
+
+### The conditional mean
+
+The appropriate ensemble is the environment seen from a halo of the relevant class. In point-process language this is halo Palm conditioning. Let \(\bar n_h\) be the density of conditioning halos, and let \(\rho_{hE}^{(2)}(0,x)\) count halo–galaxy pairs **only when the galaxy belongs to another host**. Then
+
+\[
+\overline\Lambda_E(x\mid h_0)
+=\frac{\rho_{hE}^{(2)}(0,x)}{\bar n_h}
+=\bar n_g[1+\xi_{hE}(x)].
+\label{eq:palm-mean}
+\]
+
+The ratio follows by counting pairs with the halo in an infinitesimal volume and dividing by the expected number of halos there. Crucially, a full halo–galaxy correlation also contains the primary’s own galaxies. Adding a separate primary profile to that full mean would double-count them. Reduced Palm removal of the conditioning point is not a substitute for removing its host’s galaxy population.[^palm]
+
+On large scales, the correlated external excess admits a bias approximation. A tractable prescription is
+
+\[
+\begin{aligned}
+B_{\rm mean}(\omega,z;\theta)&=\rho_R(z)H(r;\theta),\\
+H(r;\theta)&=E_{\rm eff}(r;\theta)
+\left[1+b_h(M_{\rm fid},z_*)b_g(z_*)D^2(z_*)\xi_L(r,0)\right],\\
+r^2&=\chi^2(z)+\chi_*^2-2\chi(z)\chi_*\cos\vartheta.
+\end{aligned}
+\label{eq:environment-mean}
+\]
+
+Distances are comoving, \(D(0)=1\), and \(\xi_L\) is the linear matter correlation. The contribution from galaxies in other halos is commonly called the two-halo contribution; it is an ensemble term, not a literal fit to one second halo.[^halo]
+
+Here \(E_{\rm eff}\) is an **effective galaxy-level suppression**, not the halo-centre exclusion curve pasted into a galaxy model. It should approach one far from the primary and be calibrated with consistent host definitions, tracer selection, and distance coordinates. Multiplying the full bracket suppresses the reference density as well as the excess. But setting it exactly to zero is a strong modelling restriction: no subsequent multiplier can restore external intensity there. The complete \(H\) must remain nonnegative and integrable on the fitted domain.
+
+The fiducial mass controls a calibration of the environment, not a mass inferred by the galaxy-profile fit. Its uncertainty, the bias calibration, and the suppression scale warrant sensitivity tests or explicit nuisance parameters. The linear-bias expression is asymptotic; continuing it through the nonlinear halo boundary with an effective suppression is an approximation to be tested, not a derivation of the transition.
+
+## The average environment is not this environment {#cox}
+
+Replacing a constant background with a conditional mean solves one problem: the mean is now associated with a halo. It leaves another untouched. A particular halo can have a neighbouring group or filament where the ensemble mean has only a smooth enhancement.
+
+Instead of treating the intensity as fixed, draw a positive external field and then draw the galaxies conditional on it:
+
+\[
+B(\omega,z;\theta,F)=\rho_R(z)H(\omega,z;\theta)F(\omega,z),
+\qquad F>0,\qquad \mathbb E[F\mid\theta]=1.
+\label{eq:cox-field}
+\]
+
+This is a Cox construction. The multiplier modulates the external population; it is not a third galaxy population added to primary and environment. Conditional Poisson sampling remains possible even though the marginal catalogue is correlated.
+
+For cells with fixed primary expectations \(p_j\) and mean external expectations \(c_j\), suppose the retained field factor is constant within each cell. Then
+
+\[
+\begin{aligned}
+N_j\mid F&\sim\operatorname{Poisson}(p_j+c_jF_j),\\
+\mathbb E[N_j]&=p_j+c_j,\\
+\operatorname{Cov}(N_j,N_k)
+&=\delta_{jk}(p_j+c_j)+c_jc_kK_{jk},
+\qquad K_{jk}=\operatorname{Cov}(F_j,F_k).
+\end{aligned}
+\label{eq:count-covariance}
+\]
+
+This follows from total covariance: average the conditional Poisson covariance, then add the covariance of the conditional means. In one cell, \(\operatorname{Var}N=\mathbb E\mu+\operatorname{Var}\mu\). The first term is discrete sampling; the second is variation of the underlying intensity. Shared field modes also correlate disjoint cells.
+
+The environmental spread in the stack motivates asking for this second contribution, but does **not** directly estimate \(K\). The stack still mixes mass and redshift within bins, includes Poisson noise, and contains overlapping neighbourhoods in one limited sky region. A calibrated conditional covariance must separate those contributions and account for the chosen windows. In particular, shot noise estimated from galaxy counts must not be inserted into the field covariance and then counted a second time in the Poisson likelihood.
+
+The added freedom is useful only if it has a meaningful probability law. Otherwise the environment could absorb the primary itself.
+
+## Restrict competing explanations, not just negative densities {#field-prior}
+
+The attribution ambiguity is already visible in \(I=\lambda u+B\). Wherever the model allows the exchange
+
+\[
+\lambda' = \lambda-\Delta,\qquad B'=B+\Delta u,
+\qquad I'=I,
+\label{eq:attribution}
+\]
+
+the complete likelihood—including its expected-count term—is unchanged. The data distinguish total intensity, not automatically its decomposition. Exclusion, profile geometry, distance information, and the field prior must constrain which competing decompositions are possible and plausible.
+
+A lognormal multiplier provides positivity without imposing an artificial upper bound. On a finite set of represented cells, take
+
+\[
+G\sim\mathcal N(0,C),\qquad
+F_j=\exp\!\left(G_j-\tfrac12 C_{jj}\right).
+\label{eq:lognormal}
+\]
+
+The Gaussian moment identity \(\mathbb E[e^{t^TG}]=e^{t^TCt/2}\) immediately gives
+
+\[
+\mathbb E[F_j]=1,\qquad
+\mathbb E[F_jF_k]=e^{C_{jk}},\qquad
+K_{jk}=e^{C_{jk}}-1.
+\label{eq:lognormal-moments}
+\]
+
+Subtracting half the variance prevents fluctuations from silently increasing the mean environment. It normalizes an **ensemble**, not each realized patch. Forcing every patch’s average multiplier to one would define a different prior and remove some genuine large-scale count variation. Lognormal–Poisson inference has established applications to large-scale structure; here it represents residual external variation around a separately specified conditional mean.[^jasche]
+
+### Which spatial patterns should be cheap?
+
+The covariance determines which departures from the mean are plausible. In an eigenmode of \(C\) with positive variance \(\kappa\), a log-field amplitude \(g\) contributes \(g^2/(2\kappa)\) to the negative log prior. Large prior variance makes a competing pattern inexpensive; zero variance removes the mode from the support. “Smooth” is therefore not a complete specification of the field, and positivity alone provides no protection against attributing a cluster-like feature to the environment.
+
+To relate the represented freedom to physical scales, choose normalized real-space windows \(W_j\), including the intended angular and radial averaging. A spectrum-informed candidate covariance—not yet a halo-conditioned calibration—comes from an equal-time matter field and cell-dependent tracer biases:
+
+\[
+\begin{aligned}
+\delta_j&=b_j\int W_j(x)\delta_m(x)\,d^3x,\qquad \int W_j\,d^3x=1,\\
+K^{\rm spec}_{jk}&=b_jb_k\int\frac{d^3k}{(2\pi)^3}
+P_m(k)\widetilde W_j(\mathbf k)\widetilde W_k(\mathbf k)^*.
+\end{aligned}
+\label{eq:cell-covariance}
+\]
+
+The power spectrum sets mode amplitudes; the windows specify which modes the finite representation retains. For any real vector \(a\), the quadratic form is the integral of \(P_m\left|\sum_j a_jb_j\widetilde W_j\right|^2\), and is nonnegative when \(P_m\geq0\). Thus this construction gives a positive-semidefinite covariance when the integrals exist.
+
+A lightcone additionally requires redshift evolution. One practical approximation replaces the unequal-time spectrum by \(P(k;z,z')\simeq\sqrt{P_{\rm NL}(k,z)P_{\rm NL}(k,z')}\). It leads to a Gram representation
+
+\[
+\begin{aligned}
+\Psi_j(\mathbf k)&=\int d^3x\,W_j(x)b_g(z)
+\sqrt{P_{\rm NL}(k,z)}e^{-i\mathbf k\cdot x},\\
+K^{\rm spec}_{jk}&\simeq\int\frac{d^3k}{(2\pi)^3}
+\Psi_j(\mathbf k)\Psi_k(\mathbf k)^*.
+\end{aligned}
+\label{eq:lightcone-covariance}
+\]
+
+This preserves positive semidefiniteness, but assumes perfect unequal-time coherence at fixed mode and uses an approximate relation between galaxy and matter fluctuations. It is not a measured halo-conditioned covariance. Angular pixels, selected radial windows, bias, and resolution belong in its calibration. Individual galaxies’ PDZs belong in the observation likelihood, not as a universal extra smoothing of this latent prior. Convolving the prior too would change the model and can double-count distance uncertainty.
+
+### Moment matching is a model choice, not an identity
+
+If \(K\) is the desired finite-cell fractional covariance, the lognormal moments suggest the **entrywise** transformation
+
+\[
+C_{jk}=\log(1+K_{jk}).
+\label{eq:moment-match}
+\]
+
+Every entry must exist and the resulting \(C\) must be positive semidefinite. The latter does not follow from \(K\succeq0\): for \(K=\left(\begin{smallmatrix}1&2\\2&4\end{smallmatrix}\right)\), the transformed determinant is \((\log2)(\log5)-(\log3)^2<0\). A covariance adjustment or mode truncation therefore changes the requested moments and must be recorded and tested. Alternatively, start from a valid parametric \(C\) and calibrate the implied \(e^C-1\), rather than claiming exact moment matching.
+
+An average of lognormal variables is generally not lognormal. The consistent interpretation is a finite-cell approximation to selected moments, not “average a continuous field and exponentiate” as an exact operation. With a retained loading \(G=L\epsilon\), \(\epsilon\sim\mathcal N(0,I)\), the variance subtraction must use \((LL^T)_{jj}/2\), the variance actually represented.
+
+Coarse cells or a restrictive covariance can force external structure into the primary; excessive small-scale freedom can support the reverse attribution. Resolution and prior calibration are therefore scientific sensitivity questions. A prior is not made identifiable merely by being physically motivated.
+
+## How much does halo conditioning actually establish? {#conditioning-limits}
+
+The conditional mean has an exact Palm interpretation. It does not follow that an unconditional matter spectrum supplies the correct conditional residual covariance.
+
+For distinct external galaxies at \(x\) and \(y\), their pair intensity around a halo depends on a mixed three-point product density, \(\rho_{hEE}^{(3)}(0,x,y)/\bar n_h\). Expanding its connected correlations gives the fractional conditional pair excess
+
+\[
+K_h(x,y)=
+\frac{\xi_{EE}(x-y)+\zeta_{hEE}(0,x,y)-\xi_{hE}(x)\xi_{hE}(y)}
+{[1+\xi_{hE}(x)][1+\xi_{hE}(y)]}.
+\label{eq:conditional-covariance}
+\]
+
+The expression follows by subtracting the product of the two conditional means from the conditional pair intensity, then dividing by that product. Every moment must use the same primary-host exclusion. Under a suitable conditional Cox representation this is the fractional intensity covariance at distinct points; Poisson sampling contributes a separate diagonal term to count covariance. Where the conditional mean vanishes, use absolute moments instead of dividing by it.
+
+The mixed three-point function \(\zeta_{hEE}\) is not determined by an ordinary two-point matter spectrum. This is why prescribing an excluded mean and a spectrum-informed residual field is a **conditional closure**: a tractable approximation to a more complicated joint distribution.
+
+There is an exact special case that explains why the factorization is attractive. Suppose halo centres and external tracers are conditionally Poisson processes driven by jointly Gaussian log-fields \(Y\sim\mathcal N(0,C)\). Observing a halo reweights the field law by its halo intensity. Completing the square shows that
+
+\[
+e^{t^TY-\frac12t^TCt}\,p(Y)
+=\mathcal N(Y;Ct,C).
+\label{eq:gaussian-tilt}
+\]
+
+Choosing \(t\) to select the halo log-field shifts the external log-field mean by \(C_{Eh}(x,0)\) while leaving its Gaussian covariance unchanged. The conditional intensity consequently factors into
+
+\[
+\Lambda_E(x\mid h_0)\ \overset{d}{=}
+\bar n_g e^{C_{Eh}(x,0)}
+\exp\!\left(G_E(x)-\tfrac12 C_{EE}(x,x)\right).
+\label{eq:tilted-intensity}
+\]
+
+The reduced-Palm theorem for a single log-Gaussian Cox process establishes the corresponding result rigorously; the expression here uses the stated multitype extension.[^lgcp] The unchanged quantity is the Gaussian covariance, hence the **fractional** intensity covariance. The absolute covariance still scales with the changed conditional means.
+
+Our practical \(H\) is not \(e^{C_{Eh}}\) derived from a jointly calibrated Gaussian system. In particular, finite Gaussian cross-covariance cannot produce a hard-zero mean. Neither halo exclusion nor the full galaxy occupation law is established by this theorem. The model retains the useful mean-times-residual structure while explicitly giving up an exact joint halo–galaxy construction.
+
+## One joint refinement pipeline {#joint-inference}
+
+We can now collect the pieces without changing the experiment:
+
+\[
+\Lambda_R(\omega,z;\theta,G)=w(\omega)
+\left[\lambda U(\omega;\theta)\delta_D(z-z_*)
++\rho_R(z)H(\omega,z;\theta)e^{G(\omega,z)-\frac12\operatorname{Var}G(\omega,z)}\right].
+\label{eq:final-intensity}
+\]
+
+The primary contributes exactly \(\lambda\) to the selected expected count. If the multiplier is constant in field cell \(V_j\), define
+
+\[
+c_j(\theta)=\int_{V_j}w(\omega)\rho_R(z)H(\omega,z;\theta)\,d\omega\,dz,
+\qquad
+\mu_E(\theta,G)=\sum_j c_j(\theta)F_j.
+\label{eq:compensator}
+\]
+
+The reference and mean remain inside the cell integral; a constant multiplier does not make either of them constant. All primary, environmental, and count terms are evaluated at the same joint state. Moving the primary changes its normalized profile and can also change the mean external explanation.
+
+### A direct interpretation of reference-weighted PDZs
+
+The event integrals become especially transparent after a fixed reference normalization. From the compatible native likelihood define
+
+\[
+Z_i=\int\rho_R(z)\ell_i(z)\,dz,
+\qquad
+q_i(z)=\frac{\rho_R(z)\ell_i(z)}{Z_i}.
+\label{eq:reference-pdz}
+\]
+
+Thus \(q_i\) is a normalized redshift distribution **under the selected reference population**. It is not automatically the source PDZ. It is obtained by removing the source prior and applying the chosen reference, not by applying two priors to the same photometry.
+
+Dividing both event responses by the same fixed \(w_iZ_i\) gives
+
+\[
+\begin{aligned}
+a_i^P(\theta)&=\lambda U_i\,
+\frac{q_i(z_*)}{\rho_R(z_*)},\\
+a_i^E(\theta,G)&=\int q_i(z)H(\omega_i,z;\theta)F(\omega_i,z)\,dz,\\
+\log L(\theta,G)&=\sum_i\log(a_i^P+a_i^E)-\lambda-\mu_E(\theta,G)+\mathrm{const}.
+\end{aligned}
+\label{eq:reference-likelihood}
+\]
+
+The thin primary response requires \(\rho_R(z_*)>0\) on its prior support. Its finite-depth replacement is \(\lambda U_i\int g_P(z)q_i(z)/\rho_R(z)\,dz\). In a homogeneous external model, \(H=F=1\) and \(a_i^E=1\); the primary is an excess relative to that reference. With structure, the external response is the **PDZ expectation of the environmental enhancement**. These expressions preserve every PDZ mode without assigning an object to a best redshift.
+
+<!-- FIGURE:response -->
+
+The dropped factors are independent of every inferred quantity. They change the event log likelihood only by a constant and cancel in allocation ratios; they do **not** rescale the physical expected-count term. If the reference or PDZ calibration is itself inferred, that dependence must instead be retained consistently.
+
+A local field grid need not cover all PDZ support, but the remaining support needs an explicit external explanation—for example, a fixed reference outside the active grid, with both its event response and count integral included. Renormalizing each PDZ into a narrow candidate window would artificially turn distant probability into evidence for the candidate. A real redshift-dependent admission cut must likewise be represented in the selection model, not introduced by a trial fit.
+
+Priors on the primary and Gaussian field complete the posterior,
+
+\[
+p(\theta,G\mid D)\propto L(\theta,G)p(\theta)p(G\mid\theta),
+\qquad
 p(\theta\mid D)=\int p(\theta,G\mid D)\,dG.
-\label{eq:marginal}
+\label{eq:posterior}
 \]
 
-This is not generally equivalent to fitting one external map, subtracting it, and analyzing the remainder. A single subtraction treats one environmental explanation as settled. Marginalization retains the possibility that different environments support different richnesses, scales, or centres.
+A covariance that depends on fitted parameters carries its normalization with it; in a white-driver representation that dependence belongs in the loading and the generative transformation. The inferential objective is marginalization over plausible environments, not optimization of one external map followed by treating that map as known.
 
-Membership follows from the same competition. Conditional on a joint state, an observed galaxy’s primary allocation probability is its primary response divided by the total. The reported membership is
+### Membership and richness answer different questions
+
+Superposition of the primary and external Poisson processes gives, at a fixed joint state, the primary allocation probability
 
 \[
-p_i^P=\mathbb E_{\theta,G\mid D}
-\left[\frac{\nu_i^P}{\nu_i^P+\nu_i^E}\right].
+a_i(\theta,G)=\frac{a_i^P}{a_i^P+a_i^E},
+\qquad
+p_i^P=\mathbb E_{\theta,G\mid D}[a_i(\theta,G)].
 \label{eq:membership}
 \]
 
-The ratio is formed **before** averaging. Membership is an output of the model, not a clean input catalogue available beforehand. The [companion derives the allocation law from Poisson superposition](cluster-derivations.html#joint-inference).
+The ratio is formed **before** posterior averaging. A ratio of separately averaged intensities generally gives a different answer. Membership is therefore an inference output, not a clean list supplied to the fit. Probabilistic membership itself has established observational validation in existing cluster catalogues; the calibration of these particular probabilities would need its own tests.[^membership]
 
-Three quantities should remain distinct: \(\lambda\), an expected selected intensity; \(\sum_i p_i^P\), an allocation of existing observations; and the primary count in a new replicated catalogue, which includes another Poisson draw. Their uncertainties answer different questions.
+For the assigned primary count in this observed catalogue,
 
-Population labels, or *marks*, can extend the construction to several galaxy populations. The design allows population-specific references, biases and primary parameters, with shared latent drivers for the external fields. That specifies a particular cross-population dependence; it does not infer an arbitrary cross-covariance. The central question remains the same: how much of the admitted catalogue is supported as primary rather than external?
+\[
+\begin{aligned}
+\mathbb E[N_P^{\rm assign}\mid D]&=\sum_i p_i^P,\\
+\operatorname{Var}(N_P^{\rm assign}\mid D)
+&=\mathbb E\!\left[\sum_i a_i(1-a_i)\mid D\right]
++\operatorname{Var}\!\left(\sum_i a_i\mid D\right).
+\end{aligned}
+\label{eq:assigned-count}
+\]
 
-## What would count as a successful refinement? {#validation}
+The first term is conditional label uncertainty; the second is shared uncertainty in the cluster and environment. A **new** primary catalogue instead has \(N_P^{\rm rep}\mid\lambda\sim\operatorname{Poisson}(\lambda)\), with posterior predictive variance \(\mathbb E[\lambda\mid D]+\operatorname{Var}(\lambda\mid D)\). The generating selected richness, an allocation of existing observations, and a replicated count are not interchangeable truth targets.
 
-A plausible-looking environmental map is not the test. The model is useful if its treatment of the environment improves inference about the primary, including the interpretation of uncertainty.
+The same construction can retain galaxy populations as marks. Population-specific primary profiles, references, and measurement kernels then enter additively. Shared Gaussian drivers provide explicit cross-population environmental covariance; assuming shared drivers is a particular dependence model, not an estimate of an arbitrary cross-covariance.
 
-The progression above suggests a controlled comparison:
+In operational terms, the pipeline is:
 
-| Model | Environmental mean | Residual field |
+| Stage | Quantity that must remain explicit |
+| --- | --- |
+| Propose candidates | Finder outputs and the observations used to select them; no claim of confirmed membership. |
+| Freeze the local experiment | Footprint, mask, flux admission, PDZ support, and target richness definition. |
+| Construct the forward model | Primary projection and normalization, selected reference, conditional mean, residual covariance, and compatible PDZ likelihoods. |
+| Infer jointly | Primary parameters and external field, with all event and expected-count terms evaluated together. |
+| Report and calibrate | Marginal primary posteriors, allocation probabilities, predictive diagnostics, and the survey-level detection-and-measurement response. |
+
+## What the model still has to earn {#validation}
+
+The catalogue diagnostics support the need to distinguish a primary, a conditional mean environment, and environmental variation. They do not establish that this particular closure improves parameter recovery or produces calibrated uncertainties. **This article presents a model derivation and empirical mock diagnostics, not a completed validation of the refinement pipeline.** Establishing improved recovery and calibrated uncertainty requires repeated-fit experiments with compatible truth targets.
+
+The cleanest test is a factorial comparison on exactly the same selected data and target observable:
+
+| Model | Environmental mean | Residual multiplier |
 | --- | --- | --- |
 | Homogeneous baseline | \(H=1\) | \(F=1\) |
-| Conditioned mean | Prescribed \(H\) | \(F=1\) |
-| Stochastic, unconditioned ablation | \(H=1\) | Random \(F\) |
-| Full conditional model | Prescribed \(H\) | Random \(F\) |
+| Conditional mean only | Calibrated \(H\) | \(F=1\) |
+| Stochastic, unconditioned | \(H=1\) | Random \(F\) |
+| Full conditional model | Calibrated \(H\) | Random \(F\) |
 
-All four must use the same admitted galaxies, footprint, primary family, references, priors, and target quantity. Otherwise an apparent improvement could simply reflect a different question.
+Hold the primary family, catalogue, mask, reference, priors, and estimand fixed. In-model simulations can test recovery of generating parameters and numerical inference. Misspecified mocks should vary the primary’s shape, centre, environment, field resolution, photo-z tails and aliases, source-prior calibration, and selection. Coverage tests require repeated datasets with compatible truth. The 183 labelled primary galaxies in the scene are a realized count in a cut, not a supplied generating value of \(\lambda\).
 
-In controlled mocks, we can test recovery of the *generating* selected richness, centre, redshift and profile parameters. Across a specified ensemble, we can check whether credible intervals contain compatible truth at the rates we expect. A realized number of labeled mock members is not automatically the generating expected richness. The 160 labeled primary galaxies in our illustrative cut, for example, are a count in that cut—not a supplied generating value of \(\lambda\).
+For real-mock membership tests, host labels provide a useful allocation truth. Reliability curves, contamination versus projected radius and PDZ ambiguity, and joint centre–richness errors address different failure modes. Posterior predictive checks should confront **raw observed** angular counts and measurement distributions; a membership-weighted profile already depends on the fitted attribution and is not an independent validation of it. The conditional Poisson law should itself be tested: an explicit central-plus-satellite occupation model need not have Poisson counts even at fixed environment. The mock’s built-in galaxy placement also means that agreement with an NFW-like profile is not independent evidence that real galaxies follow that family.[^flagship]
 
-In-model mocks test recovery under the assumptions. Deliberately different environments, primary shapes, redshift errors, and calibration choices test the consequences of misspecification. Posterior predictions should also confront raw observed counts. A membership-weighted profile already depends on the model’s attribution and cannot independently confirm that attribution.
+### A known halo is not a finder-selected candidate
 
-This article does not report those validation runs. The Flagship scene motivates the inference problem; the other figures demonstrate mathematical properties or explicitly specified toy models. Recovery plots, coverage curves, and posterior tradeoffs require actual inference outputs and compatible truth definitions.
+Halo Palm conditioning assumes a halo. A finder conditions on an observed pattern, possibly including a false detection. In particular, setting \(\lambda=0\) while retaining a halo-conditioned \(H\) is not a genuine no-halo model: the environment still assumes the halo. Calibrated existence probabilities require a distinct null model and the appropriate selection treatment.
 
-Cosmology, fiducial mass, bias calibration, empirical references, and field settings remain supplied inputs here. Candidate selection and potential data reuse remain separate concerns. Population conclusions from a refined catalogue would still need a suitable selection and population model.
+Data reuse also needs care. A finder’s redshift summary, computed from these same PDZs, is not an independent prior measurement. Using it to initialize a fit is different from multiplying its likelihood into the fit again. If selection is a deterministic function of the **fully retained** data, conditioning on that selection adds no information to an already conditioned object posterior. Truncating the data to a local patch, or modelling a selected population, changes the bookkeeping. One cannot insert or omit a detection-efficiency factor indiscriminately; the likelihood and population prior must refer to the same selection experiment.
 
-A more flexible environment need not make a primary posterior narrower. An ambiguous object should be allowed to remain ambiguous. A broader interval can be the more faithful result when the alternative is precision obtained by treating the surroundings as known.
+This returns us to cosmology. A refined richness is valuable only with a calibrated relation to mass and a response that includes how objects entered the catalogue. Environmental flexibility may make an individual posterior wider rather than narrower. That is not necessarily a loss of information: it can be the removal of unjustified certainty.
 
-The progression is therefore not simply from a small model to a larger one. Halo conditioning changes what we expect. The random field describes how one environment can differ. Its covariance gives those departures structure. Joint inference carries the resulting competition into the measurement of the primary.
+**The objective is not to make every overdensity look like a clean cluster. It is to identify which conclusions about the primary survive plausible explanations of the galaxies around it.**
 
-**We do not need to pretend a cluster’s surroundings are simple. We need to keep track of which conclusions about the cluster survive uncertainty about them.**
+## Data and reproducibility {#data}
 
-## Data, code and acknowledgements {#data}
+The working catalogue, `flagship_hp4x2.csv.gz`, contains **4,997,763 rows and 21 columns**. With the adopted cgs flux convention, every row satisfies \(H_{\rm AB}=-2.5\log_{10}f_\nu-48.6<24\). Its nested order-29 HEALPix identifiers map to order-4 pixels 702 and 703, an adopted footprint of 26.8574 square degrees. The analysis assumes these pixels are complete and have no internal mask; the export does not include its selection query or a survey completeness model. The magnitude cut is Euclid-Wide-like, not a full Euclid observing simulation.
 
-The opening scene uses the public Euclid Flagship 2 galaxy mock. The modern catalogue paper describes the four-trillion-particle simulation and its galaxy-population construction.[^flagship] Potter, Stadel and Teyssier (2017) describe PKDGRAV3 and an earlier two-trillion-particle run; they should not be used alone to document the later four-trillion-particle catalogue.[^pkdgrav]
+We adopt \(h=0.67\), \(\Omega_m=0.319\), and a flat matter-plus-\(\Lambda\) distance calculation for the illustrations, omitting the small separate radiation/neutrino terms in the published simulation cosmology.[^flagship] The catalogue’s usual mass convention is taken to be \(\log_{10}[M/(h^{-1}M_\odot)]\), so the physical mass cut is \(\mathrm{lm\_halo}\geq\log_{10}(0.67\times10^{14})\), not simply 14. We interpret `rvir_halo` as comoving \(h^{-1}\) kpc. The export has no unit header: this radius convention is supported by an internal virial mass–radius–redshift consistency check, not asserted to be independently verified metadata. These adopted conventions and their checks are recorded with the data products.
 
-The original CosmoHub export, `27277.csv.bz2`, contains **530,570 rows and 21 columns**, selected from `euclid_fs2_mock_dr_v1_1_phz`. Its SQL selects positive H-band flux and \(H_{\rm AB}<26\) in the nested order-6 HEALPix pixel containing \((190^\circ,60^\circ)\). These are the export’s cuts, not a claim about the refinement pipeline’s selection.
+All profile apertures pass a conservative boundary check at \(5.05r_{\rm vir}\). The galaxy profiles use projected annular areas, not spherical shell volumes; the separate halo-centre diagnostic uses shell volumes and a central-galaxy density reference measured in \(z_h\pm0.025\). Neither its reference uncertainty nor the dependence of overlapping apertures is included in an error on the mean. No such error is claimed.
 
-For the figure, the origin is the central galaxy of host `4040470062983`, at \((\alpha_0,\delta_0)=(189.68779^\circ,59.70510^\circ)\). Its supplied halo redshift is \(0.7255272\). The additional illustration cuts are \(|x|<6\) arcmin, \(|y|<6\) arcmin, and \(H_{\rm AB}<22.5\), with \(x=60(\alpha-\alpha_0)\cos\delta_0\), \(y=60(\delta-\delta_0)\), and angular coordinates in degrees. The offsets use a small-angle approximation. No redshift cut or random downsampling is applied.
+The interactive scene stores the fixed angular sample, host labels, and synthetic measurement parameters; it does not replace a missing PDZ catalogue with undocumented point estimates. The response explorer uses a smoothed redshift reference from this mock and an explicitly illustrative external enhancement, not a fitted environment or posterior membership. Full selections, seeds, checksums, per-halo counts, and figure specifications accompany the article.
 
-The resulting 2,737 rows include 160 galaxies of the primary host, 35 of highlighted host `4040470064477`, and 33 of highlighted foreground host `3838420219862`. These are simulation labels. The scene was deliberately chosen for explanation; it is not a representative sample or a validation ensemble. The export lacks individual galaxy true-redshift coordinates and photo-z likelihood arrays; the redshift panel uses `observed_redshift_gal`, not `true_redshift_halo` copied onto every satellite as though it supplied its true distance.
+[Article source](../content/measuring-a-galaxy-cluster.md) · [Data provenance](../assets/cluster/provenance.json) · [Per-halo profile measurements](../assets/cluster/profiles-per-halo.csv) · [Fixed scene](../assets/cluster/scene.csv) · [Reproduction instructions](../README.md)
 
-The [fixed figure subset](../assets/cluster/scene.csv), [provenance and raw-file checksum](../assets/cluster/provenance.json), [toy-model specifications](../assets/cluster/illustration-models.json), and [figure-generation script](../tools/make_figures.py) make the illustrations reproducible. The large raw catalogue is not needed to display the article. The [derivation companion](cluster-derivations.html) and [article source](../content/measuring-a-galaxy-cluster.md) are available separately.
+The Flagship mock and the CosmoHub infrastructure should be credited when reusing these illustrations.[^flagship][^cosmohub] This work has made use of CosmoHub, developed by PIC (maintained by IFAE and CIEMAT) in collaboration with ICE-CSIC, with support from the Spanish government, the EU NextGeneration/PRTR programme, and the Generalitat de Catalunya.
 
-<details class="disclosure"><summary>CosmoHub acknowledgement</summary><p>This work has made use of CosmoHub (Tallada et al. 2020; Carretero et al. 2018), developed by PIC (maintained by IFAE and CIEMAT) in collaboration with ICE-CSIC. It received funding from the Spanish government (grant EQC2021-007479-P funded by MCIN/AEI/10.13039/501100011033), the EU NextGeneration/PRTR (PRTR-C17.I1), and the Generalitat de Catalunya.</p></details>
-
-The acknowledgement above reproduces the requirement in the export header. The associated CosmoHub and SciPIC publications are included below.[^cosmohub][^scipic]
-
-[^amico]: F. Bellagamba, M. Roncarelli, M. Maturi & L. Moscardini (2018). *AMICO: optimised detection of galaxy clusters in photometric surveys*. MNRAS 473, 5221–5236. [arXiv:1705.03029v2](https://arxiv.org/abs/1705.03029v2), especially §§2.6 and 3.1.
-[^flagship]: Euclid Collaboration, F. J. Castander et al. (2025). *Euclid. V. The Flagship galaxy mock catalogue: a comprehensive simulation for the Euclid mission*. A&A 697, A5. [arXiv:2405.13495](https://arxiv.org/abs/2405.13495). Galaxy-mock and simulation provenance, not evidence for this refinement method’s performance.
-[^projection]: J. Myles et al. (2025). *Spectroscopic Characterization of redMaPPer Galaxy Clusters with DESI*. [arXiv:2506.06249v3](https://arxiv.org/abs/2506.06249v3). Evidence for projection contamination in optically selected clusters, not a direct validation of the present model.
-[^palm]: J.-F. Coeurjolly, J. Møller & R. Waagepetersen (2017). *A tutorial on Palm distributions for spatial point processes*. International Statistical Review 85, 404–420. [arXiv:1512.05871v2](https://arxiv.org/abs/1512.05871v2). Point-process and Palm definitions.
-[^halo]: M. Asgari, A. J. Mead & C. Heymans (2023). *The halo model for cosmology: a pedagogical review*. [arXiv:2303.08752v2](https://arxiv.org/abs/2303.08752v2), especially §§2–3 and 5.6. Halo-model terminology, bias and exclusion context; it does not establish the conditional closure used here.
-[^jasche]: J. Jasche, F. S. Kitaura, B. D. Wandelt & S. Gottlöber (2010). *Bayesian non-linear large scale structure inference of the Sloan Digital Sky Survey data release 7*. [arXiv:0911.2498](https://arxiv.org/abs/0911.2498). Precedent for lognormal–Poisson field inference, not the origin of the present conditional construction.
-[^lgcp]: J.-F. Coeurjolly, J. Møller & R. Waagepetersen (2017). *Palm distributions for log Gaussian Cox processes*. Scandinavian Journal of Statistics 44, 192–203. [arXiv:1506.04576v4](https://arxiv.org/abs/1506.04576v4), Theorem 1. The multitype illustration here additionally assumes jointly Gaussian halo and tracer log-intensities.
-[^pkdgrav]: D. Potter, J. Stadel & R. Teyssier (2017). *PKDGRAV3: beyond trillion particle cosmological simulations for the next era of galaxy surveys*. Computational Astrophysics and Cosmology 4, 2. [Published article](https://link.springer.com/article/10.1186/s40668-017-0021-1).
-[^cosmohub]: P. Tallada et al. (2020). *CosmoHub: Interactive exploration and distribution of astronomical data on Hadoop*. Astronomy and Computing 32, 100391. [arXiv:2003.03217](https://arxiv.org/abs/2003.03217).
-[^scipic]: J. Carretero et al. (2018). *CosmoHub and SciPIC: Massive cosmological data analysis, distribution and generation using a Big Data platform*. PoS(EPS-HEP2017) 488. [Published proceedings](https://pos.sissa.it/314/488/).
+[^cosmology]: S. W. Allen, A. E. Evrard & A. B. Mantz (2011). *Cosmological Parameters from Observations of Galaxy Clusters*. Annual Review of Astronomy and Astrophysics 49, 409–470. [arXiv:1103.4829](https://arxiv.org/abs/1103.4829). Cosmological motivation, mass calibration, and selection.
+[^projection]: M. Costanzi et al. (2019). *Modelling projection effects in optically selected cluster catalogues*. MNRAS 482, 490–505. [doi:10.1093/mnras/sty2665](https://academic.oup.com/mnras/article/482/1/490/5114581). Projection effects in the richness response.
+[^redmapper]: E. S. Rykoff et al. (2014). *redMaPPer. I. Algorithm and SDSS DR8 Catalog*. ApJ 785, 104. [arXiv:1303.3562](https://arxiv.org/abs/1303.3562).
+[^amico]: F. Bellagamba, M. Roncarelli, M. Maturi & L. Moscardini (2018). *AMICO: optimised detection of galaxy clusters in photometric surveys*. MNRAS 473, 5221–5236. [arXiv:1705.03029v2](https://arxiv.org/html/1705.03029v2), especially the local-background and membership sections.
+[^cfc]: Euclid Collaboration, R. Adam et al. (2019). *Euclid preparation. III. Galaxy cluster detection in the wide photometric survey, performance and algorithm selection*. A&A 627, A23. [arXiv:1906.04707v3](https://arxiv.org/html/1906.04707v3). Published comparison of detection approaches, including PZWav’s use of full PDZs.
+[^palm]: J.-F. Coeurjolly, J. Møller & R. Waagepetersen (2017). *A tutorial on Palm distributions for spatial point processes*. International Statistical Review 85, 404–420. [arXiv:1512.05871](https://arxiv.org/abs/1512.05871).
+[^nfw]: J. F. Navarro, C. S. Frenk & S. D. M. White (1997). *A Universal Density Profile from Hierarchical Clustering*. ApJ 490, 493–508. [arXiv:astro-ph/9611107](https://arxiv.org/abs/astro-ph/9611107). Origin of the dark-matter profile family; using it for galaxies is a separate modelling assumption.
+[^pdz]: A. I. Malz & D. W. Hogg (2022; preprint 2020). *How to obtain the redshift distribution from probabilistic redshift estimates*. ApJ 928, 127. [arXiv:2007.12178](https://arxiv.org/abs/2007.12178). The source-prior issue in downstream inference from photo-z PDFs.
+[^flagship]: Euclid Collaboration, F. J. Castander et al. (2025). *Euclid. V. The Flagship galaxy mock catalogue: a comprehensive simulation for the Euclid mission*. A&A 697, A5. [arXiv:2405.13495](https://arxiv.org/html/2405.13495v1). Simulation cosmology, host-centred galaxy placement, and mock construction; not evidence of refinement-pipeline performance.
+[^halo]: M. Asgari, A. J. Mead & C. Heymans (2023). *The halo model for cosmology: a pedagogical review*. The Open Journal of Astrophysics 6. [arXiv:2303.08752v2](https://arxiv.org/html/2303.08752v2), especially halo bias and exclusion.
+[^jasche]: J. Jasche, F. S. Kitaura, C. Li & T. A. Enßlin (2010). *Bayesian non-linear large scale structure inference of the Sloan Digital Sky Survey data release 7*. MNRAS 409, 355–370. [arXiv:0911.2498](https://arxiv.org/abs/0911.2498).
+[^lgcp]: J.-F. Coeurjolly, J. Møller & R. Waagepetersen (2017). *Palm distributions for log Gaussian Cox processes*. Scandinavian Journal of Statistics 44, 192–203. [arXiv:1506.04576v4](https://arxiv.org/html/1506.04576v4), Theorem 1.
+[^membership]: E. Rozo, E. S. Rykoff, M. Becker, R. M. Reddick & R. H. Wechsler (2015). *redMaPPer IV: Photometric Membership Identification of Cluster Galaxies with 1% Precision*. MNRAS 453, 38–52. [arXiv:1410.1193](https://arxiv.org/abs/1410.1193).
+[^cosmohub]: P. Tallada et al. (2020). *CosmoHub: Interactive exploration and distribution of astronomical data on Hadoop*. Astronomy and Computing 32, 100391. [doi:10.1016/j.ascom.2020.100391](https://doi.org/10.1016/j.ascom.2020.100391).

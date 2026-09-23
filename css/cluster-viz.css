@@ -1,0 +1,66 @@
+/* Article-specific progressive enhancement; the portfolio typography is retained. */
+.prose .scientific-figure {margin:2.4rem -2rem 2.7rem;padding:1.5rem 1.5rem 1.2rem;border:1px solid var(--line,#dcdedb);border-radius:12px;max-width:calc(100% + 4rem);overflow:hidden;}
+.scientific-figure .figure-kind {margin:0 0 .7rem;font:650 .74rem/1.4 var(--sans,Arial,sans-serif);letter-spacing:.1em;text-transform:uppercase;}
+.scientific-figure h3 {font-size:1.42rem;margin:.3rem 0 1rem;line-height:1.3;}
+.viz-controls {display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.55rem 0;font:400 .84rem/1.5 var(--sans,Arial,sans-serif);}
+.viz-controls button,.viz-controls select,.viz-inspector select {font:inherit;border:1px solid var(--line,#dcdedb);background:var(--paper,#fff);color:inherit;border-radius:6px;padding:.48rem .65rem;min-height:38px;max-width:100%;}
+.viz-controls button {cursor:pointer;}
+.viz-controls button[aria-pressed=true] {background:var(--ink,#1e2425);color:var(--paper,#fff);border-color:var(--ink,#1e2425);}
+.viz-controls label {display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;}
+.viz-controls .checkbox-label {margin-left:auto;}
+.viz-controls input[type=checkbox] {width:1rem;height:1rem;}
+.viz-controls input[type=range] {min-width:130px;max-width:220px;width:100%;}
+.viz-controls select {text-overflow:ellipsis;}
+.viz-controls output {font-variant-numeric:tabular-nums;min-width:3.2em;}
+.viz-status,.viz-inspector p {font:400 .8rem/1.65 var(--sans,Arial,sans-serif);margin:.75rem 0;color:var(--muted,#59615f);}
+.interactive-plot {width:100%;min-width:0;display:none;}
+.interactive-ready .interactive-plot {display:block;}
+/* Plotly requires a measurable canvas during the first draw. */
+.scientific-figure:has(.js-plotly-plot) .interactive-plot {display:block;}
+.plot-pending {display:block;}
+.interactive-ready > .static-fallback {display:none;}
+.static-fallback img,.static-gallery img {width:100%;height:auto;display:block;}
+.static-fallback a,.static-gallery a {border:0;}
+.scientific-figure figcaption {font:400 .88rem/1.65 var(--sans,Arial,sans-serif);margin:1rem 0 0;}
+.scientific-figure figcaption strong {font-weight:650;}
+.viz-inspector,.static-gallery {border-top:1px solid var(--line,#dcdedb);margin-top:.8rem;padding-top:.8rem;font:400 .88rem/1.6 var(--sans,Arial,sans-serif);}
+.viz-inspector summary,.static-gallery summary {cursor:pointer;font-weight:600;}
+.viz-inspector select {margin-top:.7rem;width:100%;}
+.response-sliders {display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1.5rem;}
+.response-sliders label {display:grid;grid-template-columns:1fr auto;font-size:.83rem;}
+.response-sliders input {grid-column:1/-1;}
+.response-readouts {display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0;padding:.9rem 0;border-top:1px solid var(--line,#dcdedb);border-bottom:1px solid var(--line,#dcdedb);font-family:var(--sans,Arial,sans-serif);}
+.response-readouts dt {font-size:.73rem;line-height:1.5;}
+.response-readouts dd {font-size:1.55rem;font-variant-numeric:tabular-nums;margin:.1rem 0 0;}
+.prose .equation {margin:1.65rem 0;padding:.25rem .1rem .5rem;}
+.prose .contents {margin:2rem 0;}
+.prose h2 {scroll-margin-top:1.5rem;}
+.viz-inspector .interactive-plot {display:block;}
+[hidden] {display:none!important;}
+@media(max-width:760px){
+ .prose .scientific-figure {margin:2rem -.65rem;padding:1rem .7rem;max-width:calc(100% + 1.3rem);border-radius:8px;}
+ .scientific-figure h3 {font-size:1.15rem;}
+ .viz-controls {font-size:.76rem;gap:.4rem;}
+ .viz-controls .checkbox-label {margin-left:0;}
+ .viz-controls button {padding:.4rem .52rem;}
+ .response-sliders {grid-template-columns:1fr;gap:.7rem;}
+ .response-readouts {gap:.6rem;}
+ .response-readouts dd {font-size:1.35rem;}
+ .response-readouts dt {font-size:.67rem;}
+ .viz-status {font-size:.75rem;}
+}
+@media print {
+ .enhance-controls,.interactive-plot,.viz-status,.viz-inspector,.response-readouts,.static-gallery {display:none!important;}
+ .interactive-ready > .static-fallback {display:block;}
+ .prose .scientific-figure {margin:1rem 0;padding:.5rem;border:none;max-width:100%;break-inside:avoid;}
+ .static-fallback img {max-height:17cm;object-fit:contain;}
+}
+
+.canvas-view {width:100%;}
+.canvas-view canvas {display:block;touch-action:none;cursor:grab;max-width:100%;}
+.canvas-view canvas:active {cursor:grabbing;}
+.canvas-legend {display:flex;flex-wrap:wrap;gap:1.1rem;font:400 .8rem/1.5 Arial,sans-serif;padding:.5rem 0;}
+.canvas-controls {justify-content:space-between;}
+.canvas-controls label {font-size:.76rem;}
+.canvas-controls input[type=range] {width:110px;min-width:90px;}
+@media print {.canvas-view {display:none!important;}}

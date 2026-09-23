@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the two committed Markdown articles to plain, deployable HTML.
+"""Render the integrated Markdown article to plain, deployable HTML.
 
 Optional authoring utility; the deployed site needs no Python or build step.
 Requires markdown-it-py and, for static mathematics, the optional npm dependency. Raw HTML is allowed because the sources are trusted,
@@ -18,76 +18,18 @@ BASE = 'https://danbnyn.github.io/portfolio/'
 MD = MarkdownIt('commonmark', {'html': True}).enable('table')
 
 
-def image(name: str, alt: str, *, height: int = 440, eager: bool = False) -> str:
-    return (f'<a class="figure-image" href="../assets/cluster/{name}.svg" aria-label="Open {name.replace(chr(45), chr(32))} at full size">'
-            f'<img src="../assets/cluster/{name}.svg" alt="{escape(alt, quote=True)}" '
-            f'width="740" height="{height}" loading="{"eager" if eager else "lazy"}" decoding="async"></a>')
-
-
 def figures() -> dict[str, str]:
-    scene = f'''<figure id="fig-scene" class="scene-figure" data-scene>
-  <p class="figure-kind">Figure 1 · Supplied simulation</p>
-  <div class="figure-controls" role="group" aria-label="Choose a view of the same mock galaxies" hidden>
-    <button type="button" aria-pressed="true" aria-controls="scene-sky" data-view="scene-sky">On the sky</button>
-    <button type="button" aria-pressed="false" aria-controls="scene-hosts" data-view="scene-hosts">Reveal host labels</button>
-    <button type="button" aria-pressed="false" aria-controls="scene-redshift" data-view="scene-redshift">Redshift space</button>
-  </div>
-  <div id="scene-sky" class="scene-panel" data-scene-panel>
-    <p class="panel-label">A · Angular positions only</p>
-    {image('scene-sky', 'The fixed sky patch contains 2,737 mock galaxies, with a central concentration and other overlapping concentrations. Host identities are not distinguished in this view.', height=620, eager=True)}
-  </div>
-  <div id="scene-hosts" class="scene-panel" data-scene-panel>
-    <p class="panel-label">B · The same points, with simulation host labels</p>
-    {image('scene-hosts', 'The same sky positions, now distinguishing 160 primary-host galaxies with circles, 35 nearby-host galaxies with triangles, and 33 foreground-host galaxies with squares. All other hosts remain small dots. The populations overlap in projection.', height=620)}
-  </div>
-  <div id="scene-redshift" class="scene-panel" data-scene-panel>
-    <p class="panel-label">C · The same points, with simulated redshifts</p>
-    {image('scene-redshift', 'Angular x-offset versus simulated galaxy redshift for all 2,737 rows. The primary and nearby host are near redshift 0.73; the highlighted foreground host is near 0.43. Their shared sky region does not imply shared distance.', height=620)}
-  </div>
-  <figcaption><strong>Projection does not establish association.</strong> All three views use exactly the same rows, with no redshift cut or subsampling. Host labels reveal simulation information, not inferred memberships. The redshift coordinate is <code>observed_redshift_gal</code>, not a photometric-redshift estimate or a true-distance coordinate. The fixed selection is a 12 × 12 arcmin square with H-band magnitude below 22.5. <a href="#data">Full provenance and selection</a>.</figcaption>
-</figure>'''
-    mean = f'''<figure id="fig-mean">
-  <p class="figure-kind">Figure 2 · Schematic mean, not a calibration</p>
-  {image('conditional-mean', 'Mean external density relative to the reference: a flat reference at one, a correlated mean elevated near the origin, and an excluded mean that is zero in the core, rises through a smooth transition, and tends toward the correlated mean.', height=440)}
-  <figcaption><strong>Conditioning changes the expectation; exclusion changes its core.</strong> For this illustration only, let \\(q=r/R_*\\) and use the correlated factor \\(1+2/(1+q^2)\\). The exclusion is \\(E=t^2(3-2t)\\), where \\(t=\\operatorname{{clip}}((q-1)/0.6,0,1)\\). The final curve multiplies the entire correlated factor by \\(E\\). These are explanatory curves, not the model’s calibrated matter correlation or exclusion function.</figcaption>
-</figure>'''
-    counts = f'''<figure id="fig-counts">
-  <p class="figure-kind">Figure 3 · Calculated toy probability laws</p>
-  {image('poisson-cox', 'Two count distributions with the same expected count of 20. The Poisson distribution has variance 20. A Poisson mixture with a random external intensity has a much broader distribution with variance 76.25.')}
-  <figcaption><strong>The same mean need not imply the same uncertainty.</strong> In one illustrative cell, fix the primary expectation at 5 and the external expectation at 15. The second model uses \\(N\\mid F\\sim\\operatorname{{Poisson}}(5+15F)\\), with \\(\\mathbb E F=1\\) and \\(\\operatorname{{Var}}F=0.25\\). Its variance is \\(20+15^2(0.25)=76.25\\). The mixture probabilities are evaluated by Gaussian quadrature; the displayed range is not renormalized. No fitted counts or recovery results are shown.</figcaption>
-</figure>'''
-    prior = f'''<figure id="fig-prior">
-  <p class="figure-kind">Figure 4 · Explicit finite-cell prior illustrations</p>
-  {image('prior-short', 'Three stepwise positive multiplier draws on 64 cells with correlation length 0.35. Local peaks and troughs vary over relatively short distances.', height=365)}
-  {image('prior-long', 'Three multiplier draws using the same white drivers but correlation length 1.4. The departures are broader and more coherent, with the same pointwise Gaussian variance.', height=365)}
-  <details class="disclosure"><summary>See the Gaussian mode variances</summary>
-    {image('prior-modes', 'Sorted covariance eigenvalues for the two illustrative correlation lengths. The longer length concentrates variance in fewer leading modes. Both include the same small numerical diagonal term.', height=400)}
-  </details>
-  <figcaption><strong>The covariance decides which alternatives are plausible.</strong> These teaching priors use 64 cells of width 0.125 in arbitrary units, with \\(C_{{jk}}=0.49\\exp[-(x_j-x_k)^2/(2\\ell^2)]+10^{{-10}}\\delta_{{jk}}\\), for \\(\\ell=0.35\\) and \\(1.4\\). The same three white drivers are used for both lengths. Each plotted field is \\(F_j=\\exp(G_j-C_{{jj}}/2)\\): its <em>ensemble</em> mean is one, not necessarily its average across this patch. These covariances are not the project’s power-spectrum calibration. <a href="../assets/cluster/illustration-models.json">Parameters and seed</a>.</figcaption>
-</figure>'''
-    likelihood = f'''<figure id="fig-likelihood">
-  <p class="figure-kind">Figure 5 · Synthetic measurement illustration</p>
-  {image('redshift-likelihoods', 'Three illustrative relative redshift likelihoods: a narrow peak near the candidate, a broad foreground peak with a tail toward the candidate, and a two-peaked ambiguous curve. A vertical line marks the candidate redshift 0.7255.')}
-  <figcaption><strong>One curve belongs to one observation.</strong> These deliberately constructed likelihoods illustrate distance ambiguity; they are not measurements from the supplied mock and are not attached to its individual rows. Each curve is scaled to a peak of one, solely for comparison. The primary samples a likelihood near its latent redshift; the external response integrates competing intensity along the line of sight. A curve’s area in this plot is not a number of galaxies.</figcaption>
-</figure>'''
-    return {'scene': scene, 'mean': mean, 'counts': counts, 'prior': prior, 'likelihood': likelihood}
-
+    return {name: (ROOT/'templates'/'figures'/f'{name}.html').read_text(encoding='utf-8')
+            for name in ('scene', 'profiles', 'response')}
 
 FIGURES = figures()
 CONFIG = {
     'measuring-a-galaxy-cluster': {
         'title': 'Measuring a galaxy cluster in a crowded Universe',
-        'description': 'From a detected overdensity to joint inference of one halo and the galaxies around it.',
-        'eyebrow': 'Research note · Astrophysics & statistical inference',
+        'description': 'From photometric overdensity to joint inference: a primary halo, a conditional environment, and the uncertainty between them.',
+        'eyebrow': 'Astrophysics · A probabilistic cluster-refinement model',
         'prefix': '',
-        'footer': '<a href="cluster-derivations.html">Continue to the derivations →</a>',
-    },
-    'cluster-derivations': {
-        'title': 'Cluster refinement: the derivations',
-        'description': 'Point processes, halo conditioning, positive fields, selection, and joint inference—under explicit assumptions.',
-        'eyebrow': 'Technical companion · Cluster refinement',
-        'prefix': 'A',
-        'footer': '<a href="measuring-a-galaxy-cluster.html">← Return to the narrative</a>',
+        'footer': '<p>Model, derivations and diagnostics form one article. See the data section for reproducibility and the validation section for claims not yet established.</p>',
     }
 }
 
@@ -143,7 +85,7 @@ def render_source(source: str, prefix: str) -> tuple[str, int]:
         return f'<h{len(marks)} id="{ident}">{MD.renderInline(label)}</h{len(marks)}>'
     source = re.sub(r'^(#{2,3}) (.+?)(?: \{#([\w-]+)\})?$', heading, source, flags=re.M)
     body = MD.render(source)
-    contents = ('<details class="contents"><summary>In this note</summary>'
+    contents = ('<details class="contents"><summary>In this article</summary>'
                 '<nav aria-label="Article contents">'+''.join(
                     f'<a href="#{ident}">{escape(label)}</a>' for ident,label in headings
                 )+'<a href="#references">References</a></nav></details>')
@@ -174,8 +116,8 @@ def build(slug: str, config: dict) -> None:
     canonical = BASE+'writing/'+slug+'.html'
     title = escape(config['title'])
     description = escape(config['description'], quote=True)
-    scene_script = '<script defer src="../js/scene.js"></script>' if slug == 'measuring-a-galaxy-cluster' else ''
-    context = ('<p class="article-context">A note on my <a href="../work.html#cluster-refinement">cluster-refinement work at the Institut d’Astrophysique de Paris</a>.</p>'
+    scene_script = '<script defer src="../js/vendor/plotly.min.js"></script><script defer src="../assets/cluster/interactive-data.js"></script><script defer src="../js/cluster-canvas3d.js"></script><script defer src="../js/cluster-viz.js"></script>'
+    context = ('<p class="article-context">An article on my <a href="../work.html#cluster-refinement">cluster-refinement work at the Institut d’Astrophysique de Paris</a>.</p>'
                if slug == 'measuring-a-galaxy-cluster' else '')
     output = f'''<!doctype html>
 <html lang="en">
@@ -194,6 +136,7 @@ def build(slug: str, config: dict) -> None:
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/cluster-viz.css">
   <script defer src="../js/math.js"></script>
   {scene_script}
 </head>
@@ -216,11 +159,12 @@ def build(slug: str, config: dict) -> None:
           <h1 id="article-title">{title}</h1>
           <p class="lede">{description}</p>
           {context}
-          <p class="entry-meta">Dan Benayoun · <time datetime="2026-09-22">22 September 2026</time></p>
+          <p class="entry-meta">Dan Benayoun · <time datetime="2026-09-23">23 September 2026</time></p>
         </header>
         <p class="math-status" data-math-status role="status" hidden></p>
         <noscript><p class="math-status">JavaScript is needed to typeset equations. Their LaTeX source remains visible. Every figure and the full text remain available.</p></noscript>
-        <p class="equation-help">Wide equations scroll sideways. Select a plot to open it at full size.</p>
+        <p class="equation-help">Three linked figure groups · Full-PDZ illustrations · Reproducible mock diagnostics</p>
+        <noscript><p>Interactive controls require JavaScript. Equations, static figures, data links and the complete article remain available without it.</p></noscript>
         <div class="prose">
 {body}
         </div>

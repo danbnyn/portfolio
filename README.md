@@ -1,132 +1,157 @@
-# Dan Benayoun — scientific notes
+# Dan Benayoun — portfolio and scientific notes
 
-A small, writing-first static website. The published pages are already built:
-**no framework, server application, CMS, or build step is needed to publish them.**
-The visual language of the original site is retained: system fonts, serif headings,
-a single restrained accent, and a narrow reading column.
+The published site is at https://danbnyn.github.io/portfolio/. Its main article,
+**Measuring a galaxy cluster in a crowded Universe**, contains the derivations,
+literature context and three interactive figure groups. The former technical
+companion URL redirects to the integrated article.
 
-## Read / preview
+## Read and publish
 
-Open `index.html` in a browser, or serve this directory locally:
+Open `writing/measuring-a-galaxy-cluster.html`, or serve the directory:
 
 ```sh
 python -m http.server 8000
 ```
 
-Then open `http://localhost:8000`. The article is under
-`writing/measuring-a-galaxy-cluster.html`; its technical companion is
-`writing/cluster-derivations.html`.
+The site is already built. GitHub Pages serves the repository's `master` branch
+from its root. Publishing requires no Python, Node, server-side application or
+build service. Equations are pre-rendered SVG with assistive
+MathML. Figures use a bundled Plotly distribution and a small CPU-projected 3D
+canvas renderer; **WebGL is not required**. There are no runtime requests for
+fonts, data, plotting libraries or equation rendering, and no analytics.
 
-The published articles contain pre-rendered SVG equations with assistive MathML.
-There is **no browser MathJax download**, no web-font request, and no network call
-for the figures. The only article JavaScript is the small optional scene-view
-switcher. Without JavaScript, all three scene views appear in sequence, the
-contents disclosure still works, and all equations remain typeset.
+Without JavaScript, the entire article, equations, static SVG views and data
+links remain available. Static views also appear when printing. Keyboard users
+can use the figure selectors, native sliders and 3D arrow-key controls; every
+figure includes a text description and equivalent static views.
 
-The underlying image assets remain SVG; PNG files are convenient previews, not
-additional downloads made by the pages. The site does not send analytics.
+## What is evidence, and what is illustration?
 
-## What belongs where
+The retained mock diagnostics are measurements from `flagship_hp4x2.csv.gz`:
+4,997,763 selected rows; 339 interior massive conditioning halos; a 162-halo
+narrower default stack; and a fixed 7,341-galaxy scene. Per-halo counts preserve
+an exact total = primary + complementary identity for the same selection.
 
-- `index.html`: a short introduction and the latest article, not a second CV.
-- `about.html`: background and education, including the incoming Oxford programme.
-- `work.html`: selected IAP and RODEO work; no exhaustive project inventory.
-- `writing.html`: the article index, with the companion attached to its main note.
-- `content/`: editable Markdown sources, including LaTeX and references.
-- `assets/cluster/`: the fixed illustration subset, provenance, and generated figures.
-- `tools/`: optional authoring and checking utilities.
-- `notes/editorial-review.md`: editorial decisions and scientific follow-through.
-- `notes/check-results.md`: the checks performed and their boundaries.
+The PDZs are **synthetic full distributions**, generated from a documented
+magnitude-dependent, three-component likelihood in `s = log(1+z)`, using real
+mock sky positions and simulation redshift-space coordinates. They are not
+supplied Euclid PDZs or a calibration of Euclid performance. Probability-density
+maps integrate the full distributions analytically. The 3D probability cloud is
+a finite quadrature display, not a collection of independently observed galaxies.
 
-## Edit an article
+The response explorer evaluates one chosen illustrative state. No refinement
+engine, posterior samples, inference results or performance validation are
+included or claimed. The article specifies the tests needed to establish those
+claims; the numerical checks below test identities and data integrity only.
 
-The ready-to-publish HTML is committed so that editing does not need a new site
-framework. The optional authoring path keeps prose in Markdown and generates
-numbered mathematics, footnotes, contents links, figure modules and page metadata.
+## Rebuild the retained figures and article
 
-One-time authoring setup (Python 3.11+ and Node.js are needed only for rebuilding):
+Versions used are pinned in `requirements-articles.txt`,
+`requirements-figures.txt` and `package.json`. The numerical tools use Python
+3.11 or newer (`hashlib.file_digest` is used by the optional raw-data analysis).
 
 ```sh
-python -m pip install -r requirements-articles.txt
+python -m pip install -r requirements-articles.txt -r requirements-figures.txt
 npm install --ignore-scripts
-```
-
-Then edit `content/*.md` and run:
-
-```sh
-python tools/build_articles.py
-python tools/check.py
-```
-
-`tools/build_articles.py` renders the two Markdown sources and invokes the small
-build-time MathJax script. `package.json` pins the authoring dependency; it does
-not introduce browser dependencies or a JavaScript application. No font files are
-bundled with the site. SVG glyph paths and assistive MathML are embedded in HTML.
-Figure captions and HTML modules are in `tools/build_articles.py`. Headings may
-use `{#stable-anchor}`. References use `[^key]` and single-line definitions.
-
-For a deliberately client-typeset alternative, `--client-math` skips static
-mathematics and retains the original MathJax 4.1.2 CDN loader. That alternative
-requires JavaScript and network access; it is **not** how the supplied articles
-are built. `templates/article.html` retains the original noindex client-math
-template as a small manual authoring example.
-
-## Reproduce the figures
-
-The raw 530,570-row catalogue is intentionally not in this repository. Displaying
-the page never loads the CSV. The committed 2,737-row subset is sufficient to
-reproduce the figures:
-
-```sh
-python -m pip install -r requirements-figures.txt
 python tools/make_figures.py
+python tools/build_articles.py
 python tools/check_math.py
+python tools/check.py
+python tools/export_standalone.py artifacts/cluster-refinement.html
 ```
 
-To reproduce the subset from the original attachment instead:
+`make_figures.py` needs only the compact retained CSVs, not the full input mock.
+`build_articles.py` renders the Markdown and the three figure templates, then
+runs MathJax **at build time**. `export_standalone.py` optionally embeds all
+scripts, styles, figures and linked data files into a single HTML file. It also
+removes portfolio navigation that would otherwise become a broken local link.
+
+Optional browser regression checks use Playwright and an installed Chromium:
 
 ```sh
-python tools/make_figures.py --catalogue /path/to/27277.csv.bz2
+python -m pip install playwright
+python tools/browser_check.py --chromium /path/to/chromium
 ```
 
-The selected host, magnitude and footprint cuts, row identities and raw-file
-checksum are recorded in `assets/cluster/provenance.json`. The original export’s
-private contact information is not reproduced. The exact required CosmoHub
-acknowledgement is in the article and the asset README.
+The browser check loads the self-contained document with networking blocked,
+exercises desktop/mobile controls and 3D rotation, and tests a JavaScript-disabled
+reading view. It is a functional/accessibility smoke test, not a certification
+against every browser or assistive technology.
 
-The sky and redshift views use the supplied simulation. All remaining figures
-are explicitly specified teaching calculations. **None is a fitted posterior,
-recovery result, or test of the actual refinement pipeline.** The export has no
-per-galaxy photo-z likelihood arrays; the likelihood illustration is synthetic.
+## Reproduce the diagnostics from the supplied compressed catalogue
 
-## Checks
+The large original catalogue is not duplicated in this package. Supply its path:
 
 ```sh
-python tools/check.py              # standard library only: pages, paths, anchors, metadata
-python tools/check_math.py         # mathematical identities and fixed-subset checks
-python -m pip install playwright==1.57.0
-python -m playwright install chromium
-python tools/browser_check.py      # optional local Chromium rendering checks
+python tools/analyse_flagship.py /path/to/flagship_hp4x2.csv.gz --cache /path/to/local-cache
+python tools/make_figures.py
 ```
 
-The browser checker uses inline previews of the actual local pages and assets.
-It checks 320, 390, 768 and 1280 px layouts, equation starts, scene controls,
-keyboard access, and no-JavaScript reading. It does not claim to test a live
-website, HTTP responses, or a CDN. Screenshots and JSON reports go to the ignored
-`artifacts/` directory. For a shorter run, use `--widths 320 390` or `--widths 768 1280`.
-The checks are evidence about the article and website—not scientific validation
-of the inference method.
+The analysis uses a few GB of memory and scratch space. A persistent cache is
+optional; it is matched against the raw input SHA256 before reuse. Cache files
+are trusted local pickles, not portable source data and not included here.
+
+The analysis is intentionally specific to the supplied two-pixel north-polar
+footprint. It checks its order-4 HEALPix mapping against a sample of the actual
+order-29 nested IDs. It does not implement a general survey mask or completeness
+model. The conservative aperture test samples 2,048 positions around a circle
+at 5.05 virial radii. This is a dense numerical boundary check, not an exact
+geometric mask proof. Twelve random angular apertures per halo are drawn
+uniformly in solid angle and subjected to the same test. Overlaps remain possible.
+
+The recorded source SHA256 is:
+
+```
+424f2ca1a5a9e8a46fc5291536899dda1467780c152722371357accb918414e7
+```
+
+### Adopted units and geometries
+
+The CSV export contains no unit header or export query. The following conventions
+are therefore **adopted and cross-checked, not independently authenticated**:
+
+- H-band flux is cgs f_nu, with `H_AB = -2.5 log10(f_nu) - 48.6`. Every input row
+  then satisfies H < 24, including the sharp faint-end limit.
+- `lm_halo = log10(M / (h^-1 Msun))`, with h = 0.67. Physical masses are
+  `10**lm_halo / 0.67`. The physical 10^14 Msun threshold is not `lm_halo >= 14`.
+- `rvir_halo` is interpreted as comoving h^-1 kpc. A spherical-overdensity
+  mass–radius–redshift check gives expected/exported radius median 1.000030 and
+  10th–90th percentiles 0.996845–1.002755 for 290 halos with `lm_halo >= 14`.
+- Distance calculations use flat matter + Lambda, Omega_m = 0.319, neglecting
+  small separate radiation/neutrino expansion terms for these illustrations.
+- The two order-4 nested pixels, 702 and 703, are assumed complete and unmasked;
+  their combined area is 26.85739665 square degrees.
+
+Projected galaxy profiles use a galaxy-redshift-space cylinder of half-depth
+20 h^-1 comoving Mpc around the central galaxy's observed redshift, and
+logarithmic annuli from 0.1 to 5 rvir. Area normalization is per halo in comoving
+(h^-1 Mpc)^2; curves are equal-halo means. The central at R = 0 is below the
+first bin. The separate halo-centre diagnostic places selected centrals at host
+true redshifts and uses spherical-shell volumes, referenced to the selected
+central density within z_h ± 0.025. It does not invent true satellite positions.
+
+Percentile bands show between-halo distributions. They are not uncertainty on
+the mean or a calibrated latent-field covariance; shot noise, mass/redshift
+mixing and overlapping apertures remain. Zero bounds are not replaced with an
+artificial positive number on log-density plots.
+
+## File map
+
+`content/measuring-a-galaxy-cluster.md` is the scientific source. Figure insertion
+markers correspond to `templates/figures/{scene,profiles,response}.html`.
+`assets/cluster/` contains static views, tidy measurements, provenance, and the
+browser's precomputed probability maps. `tools/` contains reproducible analysis,
+figure, article and validation utilities. `notes/editorial-review.md` records
+revision decisions; it is not an additional scientific appendix.
+
+The original author's biography and unrelated portfolio pages are retained.
+Flagship and CosmoHub credits remain in the article. The bundled Plotly source
+retains its MIT license notice. No font files are included.
 
 ## Publish
 
-Copy this directory’s contents into the existing site repository. The pages keep
-the original canonical base `https://danbnyn.github.io/portfolio/` and relative
-asset links. GitHub Pages can serve the files directly; `.nojekyll` is included.
-Choose the relevant branch/root in the existing repository’s Pages settings if
-it is not already configured. No deployment or repository write has been done as
-part of this revision.
-
-For a different repository name or custom domain, update the canonical and Open
-Graph URLs in root pages and `tools/build_articles.py`, the `BASE` in
-`tools/check.py`, `sitemap.xml`, and the `/portfolio/` fallback paths in `404.html`.
-Then rebuild and re-run the local-link checker.
+Commit the built HTML and its local assets to `master`, then push to `origin`.
+GitHub Pages serves the files directly from the repository root; `.nojekyll`
+is kept in the repository. The redirect at
+`writing/cluster-derivations.html` preserves the former companion URL. The
+source archive used for this revision is ignored by Git.

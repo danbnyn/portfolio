@@ -1,41 +1,30 @@
-# Checks performed — 22 September 2026
+# Verification results — 23 September 2026
 
-## Passed
+`tools/check_math.py`: **14 / 14 pass**. Tests cover selected sample/flux counts,
+full PDZ mass and density/CDF consistency, prior removal, native/reference
+likelihood equivalence, exact profile decomposition, the distinction between
+centres and projected galaxies, adopted mass/radius consistency, the entrywise
+log PSD counterexample, lognormal/Cox moments, Gaussian tilting, allocation
+averaging order and integration before taking the log.
 
-`python tools/check.py`: 8 HTML pages, 214 links/assets; local paths and section
-anchors, metadata, landmarks, unique IDs and the six-page public sitemap.
+`tools/check.py`: **pass**. Seven portfolio/reading/redirect pages checked;
+30 numbered equations; 14 references; local links and anchors; static image
+alt text; no runtime remote dependencies in the article; no companion article.
 
-`python tools/check_math.py`: seven deterministic test groups covering Gaussian
-tilting, lognormal moments / Poisson-mixture variance, entrywise-log admissibility,
-selection factorization, allocation and intensity exchange, actual prior-loading
-compensation, and the fixed scene’s row identities and counts.
+Diagnostic reproduction: **byte-identical** `scene.csv`,
+`profiles-per-halo.csv`, `profile-centres.csv` and `reference-redshift.csv`
+after rerunning the portable analysis on the SHA256-matched cache of the supplied
+catalogue. Raw-input audit and checksum are recorded in provenance.
 
-Article compilation: 20 numbered displays in the narrative and 50 in the
-companion, with inline notation additionally rendered. SVG and assistive MathML
-are embedded; no TeX error nodes were found.
+`tools/browser_check.py`: **pass** at desktop width 1440 and mobile width 390,
+with all runtime network requests blocked. No page overflow or script errors.
+The full analytic PDZ map has total displayed full-domain probability mass
+7340.999999030074 after serialization, versus 7,341 expected. Source and
+reference-weighted example PDFs integrate to one numerically. The environmental
+amplitude changes the external response and allocation while leaving the primary
+response unchanged. Three-dimensional rotation works with the CPU canvas
+renderer, without WebGL. With JavaScript disabled, the 30 typeset equations and
+all three static figure groups remain visible.
 
-Browser checks used Chromium 144.0.7559.96 and the actual local documents with
-assets inlined into a preview, because network navigation is restricted in the
-editing environment. Runs at 320, 390, 768 and 1280 pixels found no page-wide
-overflow, clipped display-equation starts or JavaScript errors. The keyboard skip
-link, three scene controls, reference anchors and print all-view fallback passed.
-With JavaScript disabled, all scene panels, native contents disclosures and all
-70 numbered equations remained available. Desktop/mobile screenshots were
-inspected during preparation.
-
-## Not claimed
-
-These checks do not validate the astrophysical model, test posterior recovery or
-coverage, or verify unpublished implementation documents. They do not test HTTP
-status handling, live external links/CDN availability, deployment, every browser,
-or every screen-reader combination. Assistive MathML is present, but that is not
-a full assistive-technology audit. No live website was deployed or modified.
-
-## Re-run
-
-See the root README. The browser check can be split into:
-
-```sh
-python tools/browser_check.py --widths 320 390
-python tools/browser_check.py --widths 768 1280
-```
+These checks do **not** establish parameter recovery, posterior coverage,
+membership calibration, selection completeness/purity or a mass calibration.

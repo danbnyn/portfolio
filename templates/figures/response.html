@@ -1,0 +1,18 @@
+<figure id="fig-response" class="scientific-figure" aria-labelledby="response-title">
+  <p class="figure-kind">Figure 3 · Interactive likelihood illustration / not inference</p>
+  <h3 id="response-title">Let the same galaxy compete between explanations</h3>
+  <div class="enhance-controls" hidden>
+    <div class="viz-controls"><label>Galaxy <select id="response-object"></select></label></div>
+    <div class="viz-controls response-sliders">
+      <label for="response-z">Candidate redshift <output id="response-z-out" for="response-z">0.768</output><input id="response-z" type="range" min="0.3" max="1.3" step="0.001" value="0.768"></label>
+      <label for="response-a">External enhancement A <output id="response-a-out" for="response-a">4.0</output><input id="response-a" type="range" min="0" max="12" step="0.1" value="4"></label>
+    </div>
+    <div class="viz-controls"><label>Plot window <select id="response-range"><option value="near">0.3–1.4</option><option value="full">Full support: 0–3.2</option></select></label><button id="response-reset" type="button">Reset illustration</button></div>
+    <dl class="response-readouts"><div><dt>Primary response aᴾ</dt><dd id="response-primary">—</dd></div><div><dt>External response aᴱ</dt><dd id="response-external">—</dd></div><div><dt>Conditional allocation aᴾ / (aᴾ + aᴱ)</dt><dd id="response-allocation">—</dd></div></dl>
+    <p class="viz-status" id="response-status" role="status" aria-live="polite"></p>
+  </div>
+  <div id="response-plot" class="interactive-plot" role="img" aria-label="Full source PDZ, reference-weighted response distribution and external response integrand. Sliders control one illustrative state, not posterior inference."></div>
+  <div class="static-fallback"><a href="../assets/cluster/pdz-response.svg"><img src="../assets/cluster/pdz-response.svg" alt="A source PDZ is reweighted by removing its source prior and applying a fixed reference. Multiplying the resulting normalized response by a localized external enhancement increases the competing external integral. The primary response samples the response at the candidate redshift." width="940" height="550" loading="lazy"></a></div>
+  <details class="static-gallery"><summary>Static view and diagnostic meaning</summary><p>Moving the candidate samples a different part of the same reference-weighted PDZ. Increasing the competing environmental enhancement changes the external integral but leaves the photometry and both normalized redshift distributions unchanged. The displayed allocation is conditional on this chosen state, not averaged over any posterior.</p><a href="../assets/cluster/pdz-response.svg"><img src="../assets/cluster/pdz-response.svg" alt="Three line styles distinguish source PDZ, reference-weighted response and enhanced external integrand." width="940" height="550" loading="lazy"></a></details>
+  <figcaption><strong>Remove the source prior, apply one reference, then evaluate competing intensities.</strong> This teaching reference is a smoothed redshift histogram of the supplied H &lt; 24 catalogue, normalized to \(\pi_R(z)\); it is not a calibrated survey selection. The source prior is \(\pi_{\rm src}(z)\propto(1+z)^{-1}\), so \(q_i\propto p_i^{\rm src}(z)(1+z)\pi_R(z)\), normalized on 0 &lt; z &lt; 3.2. Set \(\rho_R=\Sigma_R\pi_R\), \(\lambda U_i/\Sigma_R=0.15\), and \(HF=1+A\exp[-(z-0.739677)^2/(2\times0.018^2)]\). Then \(a_i^P=0.15q_i(z_*)/\pi_R(z_*)\) and \(a_i^E=\int q_iHF\,dz\). All integrals use the full support, even when the plot is zoomed. The vertical line marks the trial candidate redshift. The synthetic PDZ examples use real mock rows; no displayed allocation is a catalogue fit.</figcaption>
+</figure>

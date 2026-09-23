@@ -1,0 +1,44 @@
+<figure id="fig-scene" class="scientific-figure" aria-labelledby="scene-title">
+  <p class="figure-kind">Figure 1 · Real mock positions / synthetic full PDZs</p>
+  <h3 id="scene-title">One sightline, several possible structures</h3>
+  <div class="enhance-controls" hidden>
+    <div id="scene-modes" class="viz-controls" role="group" aria-label="Scene representation">
+      <button type="button" data-mode="sky" aria-pressed="false">Sky</button>
+      <button type="button" data-mode="rsd" aria-pressed="true">Redshift space</button>
+      <button type="button" data-mode="pdz" aria-pressed="false">Full PDZ map</button>
+      <button type="button" data-mode="three" aria-pressed="false">3D redshift space</button>
+      <button type="button" data-mode="cloud" aria-pressed="false">3D PDZ clouds</button>
+    </div>
+    <div class="viz-controls">
+      <label>Redshift window <select id="scene-range"><option value="near">Near the aligned pair: 0.58–0.94</option><option value="full">Whole sightline: 0–3.2</option></select></label>
+      <label class="checkbox-label"><input id="scene-others" type="checkbox">Show all other hosts</label>
+    </div>
+    <p class="viz-status" id="scene-status" role="status" aria-live="polite"></p>
+  </div>
+  <div id="scene-plot" class="interactive-plot" role="img" aria-label="Linked galaxy scene. Default: primary and aligned host galaxies in simulation redshift space. Equivalent static figures and descriptions follow."></div>
+  <div id="scene-canvas-view" class="canvas-view" hidden>
+    <div id="canvas-legend" class="canvas-legend"></div>
+    <canvas id="scene-canvas" tabindex="0" role="img" aria-label="Rotatable 3D representation. Drag or use arrow keys; x and y are angular offsets, z is redshift. Accessible rotation sliders follow."></canvas>
+    <div class="viz-controls canvas-controls"><label>Rotation <input id="canvas-rotation" type="range" min="-180" max="180" step="1" value="-37"><output id="canvas-rotation-out">−37°</output></label><label>Tilt <input id="canvas-tilt" type="range" min="-72" max="72" step="1" value="23"><output id="canvas-tilt-out">23°</output></label><button id="canvas-reset" type="button">Reset camera</button></div>
+    <p id="canvas-view-status" class="viz-status"></p>
+  </div>
+  <div class="static-fallback">
+    <a href="../assets/cluster/scene-rsd.svg"><img src="../assets/cluster/scene-rsd.svg" alt="Angular offset against simulation redshift separates 183 primary-host circles near redshift 0.768 from 96 aligned-host triangles near 0.740. Their angular footprints overlap." width="940" height="550" loading="eager"></a>
+    <a href="../assets/cluster/scene-full-pdz.svg"><img src="../assets/cluster/scene-full-pdz.svg" alt="The same 279 galaxies contribute their full synthetic redshift distributions to a probability-density map. Broad, overlapping radial distributions obscure the two-host separation without changing sky positions." width="940" height="550" loading="lazy"></a>
+  </div>
+  <details id="scene-inspector" class="viz-inspector enhance-controls" hidden>
+    <summary>Inspect one galaxy’s full PDZ</summary>
+    <label for="scene-object">Choose an example, or click a point in the scene</label>
+    <select id="scene-object"></select>
+    <p id="scene-object-status"></p>
+    <div id="scene-object-plot" class="interactive-plot" role="img" aria-label="The selected galaxy’s full, normalized synthetic source PDZ over redshift zero to 3.2."></div>
+  </details>
+  <details class="static-gallery">
+    <summary>Static, printable views and accessible description</summary>
+    <p>Circles identify the primary host; triangles identify the aligned host. Their sky positions overlap, their simulation redshifts separate them, and their full synthetic PDZs merge the radial evidence. Host labels are simulation truth, not inferred memberships.</p>
+    <a href="../assets/cluster/scene-angular.svg"><img src="../assets/cluster/scene-angular.svg" alt="The two highlighted populations overlap in a 12 by 12 arcminute sky patch." width="940" height="550" loading="lazy"></a>
+    <a href="../assets/cluster/scene-rsd.svg"><img src="../assets/cluster/scene-rsd.svg" alt="The two host populations separate in simulation redshift space." width="940" height="550" loading="lazy"></a>
+    <a href="../assets/cluster/scene-full-pdz.svg"><img src="../assets/cluster/scene-full-pdz.svg" alt="The same galaxies’ full PDZs smear the radial separation." width="940" height="550" loading="lazy"></a>
+  </details>
+  <figcaption><strong>Distance uncertainty changes the evidence, not the number of observations.</strong> The fixed H &lt; 24 sightline contains 7,341 rows; the default highlights 183 primary and 96 aligned-host galaxies. Other hosts can be revealed without changing the sample. The radial coordinate in the point views is <code>observed_redshift_gal</code>, not a photo-z estimate or a true real-space galaxy distance. The PDZ map uses analytic integrals of a declared, magnitude-dependent mixture. Each full PDZ integrates to one over 0 &lt; z &lt; 3.2. The 3D cloud uses 25 deterministic, equally weighted quadrature nodes per highlighted galaxy; these are a finite display of a distribution, not additional galaxies. Display zooms never renormalize the PDZs. The full analytic distribution remains inspectable. <a href="#data">Selection and provenance</a>.</figcaption>
+</figure>

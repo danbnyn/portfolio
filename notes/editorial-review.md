@@ -1,149 +1,145 @@
-# Editorial review and handoff
+# Revision record — 23 September 2026
 
-## Positioning
+## Result
 
-The site now presents a longstanding interest in mathematical and theoretical
-physics, with computation as a way to investigate models. It no longer tells an
-“engineering to physics” transition story. The About page retains the formal
-engineering qualification while explaining the theoretical course of study in
-personal, neutral terms. This follows the supplied CV and the author’s account;
-it does not generalize about every French engineering programme.
+The draft and its former technical companion have been rewritten as one
+scientific article, **Measuring a galaxy cluster in a crowded Universe**.
+The argument now runs from cosmological selection and mass calibration to the
+observation likelihood, the primary population, halo-conditioned environments,
+stochastic residual structure, and joint inference. Thirty numbered equations
+sit directly in that argument. Fourteen primary-literature references supply
+context and attribution. The old companion URL redirects to the article;
+its source, navigation link and obsolete figures have been removed.
 
-The homepage is an entrance to the writing, not a compressed repetition of About
-and Work. It contains one short introduction and the latest article. Oxford’s
-incoming status appears on About, not on every page. The supplied dates place
-the programme’s start in October 2026; the copy does not treat it as already
-under way on the revision date, 22 September 2026.
+The main reading artifact is the self-contained interactive HTML. The portfolio
+package also includes the editable Markdown, figure templates, derived data,
+analysis/build utilities and verification tools. Unrelated portfolio content
+and the author's biography were retained.
 
-The IAP internship context is stated on Work. The article links back to the
-project naturally without repeatedly advertising the internship. The dates in
-the CV combine “September 2025–Present” with “six-month internship”; rather than
-invent an end date or maintain a possibly stale current-status claim, the site
-omits that interval. The CV’s paper-in-preparation statement is not promoted to
-a current publication or submission claim.
+## Scientific revisions
 
-## Curation, not deletion of experience
+**Cosmological motivation and scope.** The opening now distinguishes the halo
+mass function from the joint detection-and-measurement response. Projection can
+change both entry into a catalogue and the measured observable, so an independent
+completeness-times-error factorization is not assumed. A primary galaxy-profile
+fit is not labelled a dark-matter mass measurement. False detections and unique
+primary matching are acknowledged. redMaPPer, AMICO and PZWav are discussed as
+existing probabilistic approaches, not caricatured as finders without measurement
+or environmental corrections.
 
-For this first public selection, keep IAP and the RODEO course project. Together
-they give the site a coherent centre in physical questions, probability models,
-and computation. The RODEO description retains the task and partnership, but
-not the unsupported comparative speed/resource claim from the CV.
+**A consistent selected point-process likelihood.** The Poisson likelihood is
+derived from cells, including the expected-count term. Measurement and admission
+are made explicit before passing to a selected-latent-population convention.
+The footprint stays fixed when trial parameters move. Richness is defined as an
+expected admitted primary count in that footprint, not quietly interchanged
+with an aperture richness, a host-labelled realized count or mass.
 
-The cryptographic suite and industrial radiance-field project are not displayed.
-That is an editorial choice, not a judgment about their value. They can return
-when there is a specific question, argument or result worth writing about.
-Neither appears as an empty “coming soon” card. Projects commented out in the
-CV were not revived as if they were selected current work.
+**PDZs as one observation per galaxy.** The explanation proceeds through native
+likelihood, source posterior and reference-weighted response. Removing a known
+source prior is distinguished from applying a new reference. The assumptions
+needed for that compression—support, selection and nuisance-variable
+marginalization—are stated. Every object's distance and component origin are
+marginalized before one logarithm is taken. Fractional redshift-slice counts,
+clipped tails, double use of colours and candidate-window renormalization are
+not substituted for the generative likelihood.
 
-## Article architecture
+**An external-only conditional mean.** Halo Palm conditioning is connected to
+halo–galaxy pair counting. The primary's own population is removed explicitly;
+removing only the central point would not avoid double counting. Halo-centre
+exclusion is separated from effective galaxy-level suppression and from
+projection. Linear bias near the nonlinear halo boundary is identified as an
+approximation requiring calibration.
 
-The main article preserves the drafts’ underlying progression:
+**A controlled stochastic closure.** Poisson sampling variance is separated
+from intensity variance. The compensated lognormal field is derived, including
+its ensemble normalization and covariance. Windowed power-spectrum covariances
+are identified as candidates, not automatically calibrated conditional
+covariances. The entrywise-log PSD counterexample is retained in the narrative.
+The exact Gaussian-tilt special case is distinguished from the practical
+excluded-mean model: a two-point spectrum alone does not supply the mixed
+three-point information needed for general halo-conditioned covariance.
 
-1. An observed excess is not an already-established member catalogue.
-2. A Poisson primary-plus-background model is a useful starting experiment.
-3. Halo conditioning changes the expected external environment.
-4. A Cox residual accounts for coherent environment-to-environment variation.
-5. Finite-cell covariance determines which competing explanations are plausible.
-6. Selection and measurement map the latent model to the observed catalogue.
-7. Joint inference carries that competition into primary parameters and memberships.
-8. Validation has to compare matched estimands and calibrated uncertainties.
+**Joint inference and honest outputs.** Event terms and the compensator are
+collected in one likelihood. Membership ratios are averaged after, not before,
+being formed. Generating richness, assignment counts and replicated counts are
+separated. A halo-conditioned model at zero primary amplitude is not called a
+valid no-halo model. Finder conditioning and reuse of the same PDZ information
+are addressed. A four-model factorial comparison specifies what would test the
+proposed environmental refinements without claiming those tests were performed.
 
-The opening is now built around one actual mock neighbourhood rather than a
-series of generic mission motivations. The technical companion is a reading
-layer of the same article, not an unrelated second blog post. Both have numbered
-equations, stable section anchors, references, and downloadable Markdown.
+Minor core prescriptions and obsolete modelling history were removed rather
+than allowed to interrupt the argument.
 
-The companion adds explicit intermediate algebra where it improves auditability:
-Poisson likelihood and count covariance; mixed Palm product densities;
-conditional three-point dependence; completing the square for Gaussian tilting;
-finite-window covariance; selection factorization; generic spherical profile
-projection; and the distinction between allocation and replicated counts.
-The two-cell entrywise-log counterexample is an added pedagogical calculation,
-not a pipeline result. These additions are derived from stated assumptions rather
-than silently represented as details of uninspected code.
+## What the data changed
 
-## Scientific boundaries retained or strengthened
+The supplied compressed catalogue contains 4,997,763 rows, all consistent with
+H < 24 under the adopted cgs flux convention. The source contains no actual
+per-galaxy PDZ arrays and no individual true real-space satellite coordinates.
+Those omissions changed the visualization design rather than being hidden.
 
-The main target is the primary galaxy population, not a direct mass estimate.
-Richness is an expected selected primary count in the fixed covered footprint.
-The footprint is not moved with the fitted centre. The selected reference is
-already expressed in its declared angular/radial measure.
+A fixed 7,341-object sightline includes 183 galaxies in the primary host and 96
+in a closely aligned host. Their angular separation is approximately 2.12
+arcmin; their host true redshifts are approximately 0.7681 and 0.7397. The same
+rows are shown in angular and simulation redshift-space views. A specified
+magnitude-dependent measurement model then generates full multimodal PDZs on
+0 < z < 3.2. The example is deliberately selected to expose ambiguity, not to
+establish typical blending rates or forecast Euclid performance.
 
-Primary galaxies must not be counted both in a separate one-halo profile and
-again in a full halo–galaxy conditional mean. Reduced Palm removal of a tagged
-point is not host-member subtraction. The exact multitype Gaussian-tilt example
-requires jointly Gaussian log-intensities and conditional Poisson sampling.
-The separately prescribed excluded mean and power-spectrum residual covariance
-are a conditional approximation, not the exact Palm law of a survey detection.
-A general halo-conditioned pair covariance depends on higher-order mixed
-statistics. Its absolute covariance is not unchanged by the Gaussian mean shift.
+The profiles use 339 interior massive halos, with a default narrower selection
+of 162. All projected populations use identical redshift-space cylinders and
+annuli out to five virial radii. Total = primary + complementary is therefore
+an exact count identity. The external population remains enhanced relative to
+matched random sightlines, including at small projected radii. Its spread is
+substantial but is not presented as a calibrated latent covariance.
 
-Lognormal positivity does not solve attribution. The entrywise logarithm of
-`1 + K` is not guaranteed to be a covariance matrix. A retained loading must use
-its actual represented variance in the exponential compensation. A prior with
-physical motivation is not automatically orthogonal to the primary.
+A separate true-distance **halo-centre** diagnostic reveals a depleted inner
+region and an enhanced exterior. This is the clearest available exclusion
+illustration. It does not manufacture missing true satellite positions or imply
+that the projected complementary galaxy density must vanish. Host-assigned
+primary galaxies beyond one virial radius also prevent identifying a host label
+with a sharp virial-radius cut.
 
-A source redshift posterior is not automatically a native likelihood. Selection
-must not be applied twice. The same observation convention must enter event
-responses and the expected-count term. A shared state-independent factor in an
-event likelihood is distinct from rescaling a physical observation-space intensity.
+Mass and radius units are adopted with explicit caveats. The physical mass
+threshold uses h = 0.67 correctly. The comoving-radius interpretation passes an
+internal mass–radius–redshift check, but that is not independent authentication
+of the missing export metadata. The two HEALPix pixels are assumed complete;
+no internal mask or completeness function was supplied.
 
-Membership is the posterior expectation of an allocation ratio, not a ratio of
-posterior means. Generating richness, allocated observed counts and new Poisson
-counts have different interpretations. Finder selection, false positives and
-reuse of candidate information remain separate concerns.
+## Visual decisions
 
-## What the supplied sources do not establish
+Three figure groups replace the old collection of separate teaching plots:
 
-The two drafts refer to `model(2).md`, `numerics.md`, `usage(1).md` and
-`results(1).md`. Those files and the inference implementation were not included
-in the supplied site archive or attachments. Their claims are therefore carried
-as descriptions of the design recorded in the drafts, not independently verified
-implementation statements. Broken private-document references were removed
-from the public bibliography. The exact truncation law, empirical response
-products, and literal survey covariance implementation were not reconstructed.
+1. **One sightline, several possible structures.** Linked sky, redshift-space,
+   full-PDZ density, rotatable 3D redshift-space and 3D PDZ-cloud views; an
+   all-host toggle; full-support zoom; and individual-PDZ inspection. Cloud
+   nodes are deterministic quadrature points with weights, not new galaxies.
+2. **Separate halo exclusion from projected contamination.** Projected total,
+   primary, complementary and matched-random profiles, an across-halo band,
+   and the distinct real-space halo-centre diagnostic, with two sample choices.
+3. **Let the same galaxy compete between explanations.** A source-prior-aware
+   response explorer with candidate-redshift and environmental-amplitude
+   controls. It shows how an external explanation changes the conditional
+   allocation without changing the galaxy's photometry or source PDZ.
 
-The catalogue is not a set of inference outputs. There are no supplied posterior
-samples, calibrated covariance products or compatible generating-richness labels
-from which to report refinement recovery or coverage. The article ends with a
-substantive validation design, not an invented results figure or an empty slot.
+The 3D renderer works without WebGL. Static SVG counterparts, textual
+interpretations, keyboard controls and print/no-JavaScript views are included.
+The article makes no runtime network request for code, data, fonts or equations.
 
-Before attaching empirical performance claims, the most useful next inputs are
-one reproducible pipeline configuration, its empirical reference/covariance
-products, and posterior samples for a mock with explicitly compatible truth.
-Actual per-galaxy likelihood arrays would also allow a genuine measurement-space
-illustration. A larger raw sky sample alone would not supply those missing objects.
+## Verification and remaining limits
 
-## Visual provenance
+The diagnostic regeneration reproduced four CSV products byte for byte from a
+SHA256-matched catalogue cache: scene, profile measurements, conditioning
+centres and redshift reference. Fourteen numerical regression tests pass.
+Structural checks verify 30 rendered equations, 14 references, local links and
+anchors, image descriptions, and the absence of a separate companion article.
+Offline Chromium checks exercise desktop and 390-pixel mobile views, figure
+selectors, PDZ inspection, 3D rotation, response integrals and no-JavaScript
+fallbacks, with no observed script errors, page overflow or runtime requests.
 
-The 2,737-row scene comes from a deliberately chosen interior rich host in the
-530,570-row export. All three views use identical rows and simulation host labels.
-The plot does not use the halo’s true redshift as the true distance of each
-satellite. The exported galaxy redshift includes peculiar velocities; it is not
-a photo-z measurement. The supplied mock’s host labels are not inferred memberships.
-
-The other figures are labeled teaching constructions. They show a schematic
-excluded mean, a calculable one-cell Poisson mixture, two explicit finite-cell
-Gaussian priors, and synthetic redshift-likelihood shapes. No toy recovery plots
-or fake posterior samples were generated.
-
-Primary literature was checked for AMICO, point processes/Palm conditioning,
-log-Gaussian Cox processes, the halo model, projection, and Flagship provenance.
-The modern Flagship catalogue paper supports the later four-trillion-particle
-catalogue; Potter et al. (2017) is retained as PKDGRAV3/earlier-run context rather
-than treated as the sole source for that later catalogue. Each article reference
-states its role. Catalogue cuts and counts come from the attachment, not from a
-claim about the full public survey release or the refinement pipeline selection.
-
-## Implementation choices
-
-No framework or runtime build system was added. The four original root pages,
-CSS visual language, navigation and GitHub Pages base are retained. The writing
-pages are committed HTML; the editable sources and small authoring scripts are
-optional. Equations are rendered at authoring time to SVG plus assistive MathML,
-so reading them no longer depends on a live CDN or browser JavaScript. The scene
-switcher is progressive enhancement, and the static figures remain usable without it.
-
-The full raw catalogue, CV source, private export contact line, font files,
-`node_modules`, caches and browser artifacts are not included in the deliverable.
-No repository write or deployment has been performed.
+These are data-integrity and functional checks, not inference validation or
+exhaustive accessibility certification. A publication making recovery,
+uncertainty-calibration or Euclid-performance claims would still need an actual
+refinement implementation and repeated-fit experiments; real survey PDZ and
+selection calibration; conditional mean/covariance calibration; and a
+mass–observable/selection analysis. The article is framed as a rigorous model
+and diagnostic study precisely so that it does not depend on unperformed tests.
