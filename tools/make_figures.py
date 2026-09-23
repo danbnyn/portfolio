@@ -46,7 +46,6 @@ def pdz(z: np.ndarray, t: np.ndarray, sigma: np.ndarray, cdf: bool = False) -> n
 def save(fig, name):
     fig.tight_layout(pad=1.5)
     fig.savefig(OUT/f'{name}.svg', bbox_inches='tight', metadata={'Date':None})
-    fig.savefig(OUT/f'{name}.png', dpi=165, bbox_inches='tight')
     plt.close(fig)
 
 def chart(title, subtitle, xlabel, ylabel, figsize=(9.4, 5.5)):

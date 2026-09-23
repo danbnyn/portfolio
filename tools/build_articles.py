@@ -9,7 +9,6 @@ from __future__ import annotations
 from html import escape
 from pathlib import Path
 import re
-import argparse
 import subprocess
 from markdown_it import MarkdownIt
 
@@ -116,7 +115,7 @@ def build(slug: str, config: dict) -> None:
     canonical = BASE+'writing/'+slug+'.html'
     title = escape(config['title'])
     description = escape(config['description'], quote=True)
-    scene_script = '<script defer src="../js/vendor/plotly.min.js"></script><script defer src="../assets/cluster/interactive-data.js"></script><script defer src="../js/cluster-canvas3d.js"></script><script defer src="../js/cluster-viz.js"></script>'
+    scene_script = '<script defer src="../js/cluster-loader.js"></script>'
     context = ('<p class="article-context">An article on my <a href="../work.html#cluster-refinement">cluster-refinement work at the Institut d’Astrophysique de Paris</a>.</p>'
                if slug == 'measuring-a-galaxy-cluster' else '')
     output = f'''<!doctype html>
@@ -137,7 +136,6 @@ def build(slug: str, config: dict) -> None:
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../css/styles.css">
   <link rel="stylesheet" href="../css/cluster-viz.css">
-  <script defer src="../js/math.js"></script>
   {scene_script}
 </head>
 <body>
@@ -161,8 +159,6 @@ def build(slug: str, config: dict) -> None:
           {context}
           <p class="entry-meta">Dan Benayoun · <time datetime="2026-09-23">23 September 2026</time></p>
         </header>
-        <p class="math-status" data-math-status role="status" hidden></p>
-        <noscript><p class="math-status">JavaScript is needed to typeset equations. Their LaTeX source remains visible. Every figure and the full text remain available.</p></noscript>
         <p class="equation-help">Three linked figure groups · Full-PDZ illustrations · Reproducible mock diagnostics</p>
         <noscript><p>Interactive controls require JavaScript. Equations, static figures, data links and the complete article remain available without it.</p></noscript>
         <div class="prose">
@@ -189,13 +185,7 @@ def build(slug: str, config: dict) -> None:
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--client-math', action='store_true',
-        help='Keep browser MathJax instead of embedding mathematics at build time.')
-    args = parser.parse_args()
     for slug, config in CONFIG.items():
         build(slug, config)
-    if not args.client_math:
-        subprocess.run(['node', str(ROOT/'tools/typeset_math.cjs'),
-            *[str(ROOT/'writing'/f'{slug}.html') for slug in CONFIG]], check=True)
-
+    subprocess.run(['node', str(ROOT/'tools/typeset_math.cjs'),
+        *[str(ROOT/'writing'/f'{slug}.html') for slug in CONFIG]], check=True)

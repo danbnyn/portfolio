@@ -10,11 +10,14 @@ def main(output:Path):
   path=(PAGE.parent/m.group(1)).resolve()
   return '<style>\n'+path.read_text()+'\n</style>'
  html=re.sub(r'<link rel="stylesheet" href="([^\"]+)">',inline_css,html)
+ def script_text(rel):
+  return (PAGE.parent/rel).resolve().read_text().replace('</script','<\\/script')
  def inline_js(m):
-  path=(PAGE.parent/m.group(1)).resolve()
-  text=path.read_text().replace('</script','<\\/script')
   # Scripts are moved to the bottom because inline `defer` is not deferred.
-  scripts.append('<script>\n'+text+'\n</script>')
+  paths=([ '../js/vendor/plotly.min.js', '../assets/cluster/interactive-data.js',
+           '../js/cluster-canvas3d.js', '../js/cluster-viz.js']
+         if m.group(1)=='../js/cluster-loader.js' else [m.group(1)])
+  scripts.extend('<script>\n'+script_text(path)+'\n</script>' for path in paths)
   return ''
  scripts=[]
  html=re.sub(r'<script defer(?:="")? src="([^\"]+)"></script>',inline_js,html)

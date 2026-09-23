@@ -2,6 +2,8 @@
 .prose .scientific-figure {margin:2.4rem -2rem 2.7rem;padding:1.5rem 1.5rem 1.2rem;border:1px solid var(--line,#dcdedb);border-radius:12px;max-width:calc(100% + 4rem);overflow:hidden;}
 .scientific-figure .figure-kind {margin:0 0 .7rem;font:650 .74rem/1.4 var(--sans,Arial,sans-serif);letter-spacing:.1em;text-transform:uppercase;}
 .scientific-figure h3 {font-size:1.42rem;margin:.3rem 0 1rem;line-height:1.3;}
+.figure-load {font:600 .86rem/1.4 var(--sans,Arial,sans-serif);border:1px solid var(--ink,#1e2425);background:var(--ink,#1e2425);color:var(--paper,#fff);border-radius:6px;padding:.65rem .9rem;min-height:42px;margin:0 0 1rem;cursor:pointer;}
+.figure-load:disabled {opacity:.65;cursor:wait;}
 .viz-controls {display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.55rem 0;font:400 .84rem/1.5 var(--sans,Arial,sans-serif);}
 .viz-controls button,.viz-controls select,.viz-inspector select {font:inherit;border:1px solid var(--line,#dcdedb);background:var(--paper,#fff);color:inherit;border-radius:6px;padding:.48rem .65rem;min-height:38px;max-width:100%;}
 .viz-controls button {cursor:pointer;}

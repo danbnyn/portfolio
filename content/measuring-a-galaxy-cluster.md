@@ -508,7 +508,7 @@ All profile apertures pass a conservative boundary check at \(5.05r_{\rm vir}\).
 
 The interactive scene stores the fixed angular sample, host labels, and synthetic measurement parameters; it does not replace a missing PDZ catalogue with undocumented point estimates. The response explorer uses a smoothed redshift reference from this mock and an explicitly illustrative external enhancement, not a fitted environment or posterior membership. Full selections, seeds, checksums, per-halo counts, and figure specifications accompany the article.
 
-[Article source](../content/measuring-a-galaxy-cluster.md) · [Data provenance](../assets/cluster/provenance.json) · [Per-halo profile measurements](../assets/cluster/profiles-per-halo.csv) · [Fixed scene](../assets/cluster/scene.csv) · [Reproduction instructions](../README.md)
+[Article source](../content/measuring-a-galaxy-cluster.md) · [Data provenance](../assets/cluster/provenance.json) · [Per-halo profile measurements](../assets/cluster/profiles-per-halo.csv) · [Fixed scene](../assets/cluster/scene.csv) · [Analysis code](../tools/analyse_flagship.py) · [Figure generator](../tools/make_figures.py)
 
 The Flagship mock and the CosmoHub infrastructure should be credited when reusing these illustrations.[^flagship][^cosmohub] This work has made use of CosmoHub, developed by PIC (maintained by IFAE and CIEMAT) in collaboration with ICE-CSIC, with support from the Spanish government, the EU NextGeneration/PRTR programme, and the Generalitat de Catalunya.
 

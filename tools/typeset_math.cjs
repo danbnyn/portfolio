@@ -20,10 +20,7 @@ if (!paths.length) throw new Error('Supply at least one generated article HTML f
 for (const path of paths) {
   let source = fs.readFileSync(path, 'utf8');
   if (!source.includes('data-math ')) throw new Error(`${path}: expected untypeset article; regenerate it first.`);
-  source = source.replace(/\s*<script defer src="\.\.\/js\/math\.js"><\/script>/, '')
-    .replace(/<p class="math-status" data-math-status role="status" hidden><\/p>/, '')
-    .replace(/<noscript><p class="math-status">[\s\S]*?<\/p><\/noscript>/, '')
-    .replace('data-math ', `data-math-static="${version}" `);
+  source = source.replace('data-math ', `data-math-static="${version}" `);
   const input = new TeX({packages: AllPackages, inlineMath: [['\\(', '\\)']],
     displayMath: [['\\[', '\\]']], tags: 'ams', processEscapes: true});
   const output = new SVG({fontCache: 'local', displayAlign: 'left'});

@@ -102,7 +102,6 @@ h3 { font-size: 1.05rem; font-weight: 600; line-height: 1.5; }
 .research-entry h3 { font: 400 1.5rem/1.4 var(--serif); letter-spacing: -.02em; }
 .research-entry .prose { margin-top: 1rem; }
 .status-note { margin-top: 1.25rem; color: var(--muted); font-size: .75rem; }
-.tools { margin-top: 1.25rem; color: var(--muted); }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 2rem; border-top: 1px solid var(--rule); padding-block: 1.1rem 2rem; color: var(--muted); font-size: .71rem; }
 .site-footer a { display: inline-flex; align-items: center; gap: .4em; min-height: 1.5rem; }
 
@@ -125,7 +124,6 @@ figcaption { margin-top: .7rem; color: var(--muted); font-size: .85rem; }
 .equation { max-width: 100%; min-width: 0; margin-block: 1.5rem; padding: .25rem; overflow-x: auto; overflow-wrap: normal; }
 mjx-container { max-width: 100%; }
 mjx-container[display="true"] { margin: .75rem 0 !important; }
-.math-status { border-left: 2px solid var(--accent); padding-left: 1rem; color: var(--muted); font-size: .85rem; margin-bottom: 1.5rem; }
 .article-footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--rule); font-size: .9rem; }
 
 @media (max-width: 640px) {
